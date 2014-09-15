@@ -11,5 +11,7 @@ namespace GeminiCore
 {
     public class Memory
     {
+        List<short> Instructions;   // Instruction Vector
+        int[] memory = new int[255];// Main Memory
     }
 }

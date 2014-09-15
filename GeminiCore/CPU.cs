@@ -23,7 +23,6 @@ namespace GeminiCore
         public int IR { get; private set; }
         public int CC { get; private set; }
 
-
         public CPU()
         {
             ACC = 0;

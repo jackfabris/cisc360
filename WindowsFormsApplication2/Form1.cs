@@ -18,10 +18,12 @@ namespace WindowsFormsApplication2
     public partial class Form1 : Form
     {
         public CPU myCPU;
+        public Memory myMem;
 
         public Form1()
         {
             myCPU = new CPU();
+            myMem = new Memory();
 
             InitializeComponent();
 
