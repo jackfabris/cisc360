@@ -22,22 +22,22 @@ namespace GeminiCore
 
         public Dictionary<string, int> instBinary = new Dictionary<string, int>()
         {
-            { "LDA", 1 },
-            { "STA", 2 },
-            { "ADD", 3 },
-            { "SUB", 4 },
-            { "MUL", 5 },
-            { "DIV", 6 },
-            { "AND", 7 },
-            { "OR", 8 },
-            { "SHL", 9 },
-            { "NOTA", 10 },
-            { "BA", 11 },
-            { "BE", 12 },
-            { "BL", 13 },
-            { "BG", 14 },
-            { "NOP", 15 },
-            { "HLT", 16 }
+            { "lda", 1 },
+            { "sta", 2 },
+            { "add", 3 },
+            { "sub", 4 },
+            { "mul", 5 },
+            { "div", 6 },
+            { "and", 7 },
+            { "or", 8 },
+            { "shl", 9 },
+            { "nota", 10 },
+            { "ba", 11 },
+            { "be", 12 },
+            { "bl", 13 },
+            { "bg", 14 },
+            { "nop", 15 },
+            { "hlt", 16 }
         };
 
         //public string[] 
@@ -88,6 +88,8 @@ namespace GeminiCore
                     var minst = memStmtMatch.Groups["inst"].Value;
                     var addr = memStmtMatch.Groups["addr"].Value;
                     lineIndex++;
+                    string[] arr = { minst, addr };
+                    Console.WriteLine(binaryEncode(arr));
                     //Console.WriteLine("Mem match: " + minst + " " + addr);
                 }
                 // Immediate Instruction
@@ -127,23 +129,31 @@ namespace GeminiCore
             short result = 0;
             if (arr.Length > 2) //Immediate flag is on
             {
-                //Console.WriteLine(arr.ToString());
-                if (instBinary.ContainsKey(arr[0].ToUpper()))
+                if (instBinary.ContainsKey(arr[0]))
                 {
-                    Console.WriteLine("in if statement  ");
                     int inst = instBinary[arr[0]];
                     int imm = 1;
                     int operand = Convert.ToInt32(arr[1]);
-                    Console.WriteLine("Inst: " + inst + " op: " + operand);
                     result = (short)inst;
-                    Console.WriteLine("result: " + result);
                     result = (short)(result << 9);
-                    Console.WriteLine("result: " + result);
                     result = (short)(result | imm); 
-                    Console.WriteLine("result: " + result);
                     result = (short)(result | operand);
                     Console.WriteLine("result: " + result);
 
+                }
+            }
+            else
+            {
+                if (instBinary.ContainsKey(arr[0]))
+                {
+                    int inst = instBinary[arr[0]];
+                    int imm = 0;
+                    int operand = Convert.ToInt32(arr[1]);
+                    result = (short)inst;
+                    result = (short)(result << 9);
+                    result = (short)(result | imm);
+                    result = (short)(result | operand);
+                    Console.WriteLine("result: " + result);
                 }
             }
             return result;
