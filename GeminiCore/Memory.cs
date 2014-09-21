@@ -11,7 +11,11 @@ namespace GeminiCore
 {
     public class Memory
     {
-        List<short> Instructions;   // Instruction Vector
+        public List<short> Instructions = new List<short>();   // Instruction Vector
         int[] memory = new int[255];// Main Memory
+
+        public void addInstruction(short x) {
+            Instructions.Add(x);
+        }
     }
 }

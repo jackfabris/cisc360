@@ -26,10 +26,6 @@ namespace WindowsFormsApplication2
             myMem = new Memory();
 
             InitializeComponent();
-
-#if DEBUG
-            loadFileButton.Text = "Hello";
-#endif
         }
 
         #region Events
@@ -42,7 +38,12 @@ namespace WindowsFormsApplication2
                     try
                     {
                         var ipe = new IPE(ofd.FileName);
+                        ipe.mem = myMem;
                         ipe.ParseFile();
+                        foreach (short x in myMem.Instructions)
+                        {
+                            Console.WriteLine(x);
+                        }
                     }
                     catch (Exception err)
                     {
