@@ -44,6 +44,7 @@ namespace GeminiCore
 
         public void ParseFile()
         {
+            List<short> instructions = new List<short>();
             var lines = File.ReadAllLines(this.FileToParse).ToList<string>();
             var lineIndex = 0;
             Dictionary<string, int> labels = new Dictionary<string, int>();
@@ -53,15 +54,17 @@ namespace GeminiCore
                 Regex labelStmtFormat = new Regex(@"^\s*(?<label>.*?)\s*:$");
                 Regex emptyLine = new Regex(@"^\s*$");
                 Regex comment = new Regex(@"\s*!(.*)$");
-                Regex memInst = new Regex(@"^\s*(?<inst>[a-zA-Z]{2,4}?)\s\$(?<addr>\d*)");
-                Regex immInst = new Regex(@"^\s*(?<inst>[a-zA-Z]{2,4}?)\s\#\$(?<imm>\d*)");
-                Regex branchInst = new Regex(@"^\s*(?<inst>[a-zA-Z]{2}?)\s(?<label>[a-zA-Z]+$?)");
-                Regex otherInst = new Regex(@"^\s*(?<inst>[a-zA-Z]{2,4}$?)");
+                Regex memInst = new Regex(@"^\s*(?<inst>[a-zA-Z]{2,4}?)\s\$(?<addr>\d*)\s*(?<rest>.*)");
+                Regex immInst = new Regex(@"^\s*(?<inst>[a-zA-Z]{2,4}?)\s\#\$(?<imm>\d*)\s*(?<rest>.*)");
+                Regex branchInst = new Regex(@"^\s*(?<inst>[a-zA-Z]{2}?)\s(?<label>[a-zA-Z]+$?)\s*(?<rest>.*)");
+                Regex otherInst = new Regex(@"^\s*(?<inst>[a-zA-Z]{3,}?)\s+(?<rest>.*)");
+                Regex otherInstNoCom = new Regex(@"^\s*(?<inst>[a-zA-Z]*?)$");
                 var labelStmtMatch = labelStmtFormat.Match(line);
                 var memStmtMatch = memInst.Match(line);
                 var immStmtMatch = immInst.Match(line);
                 var branchStmtMatch = branchInst.Match(line);
                 var otherStmtMatch = otherInst.Match(line);
+                var otherNoComStmtMatch = otherInstNoCom.Match(line);
 
                 // If the line is empty, move to the next line
                 if (emptyLine.Match(line).Success)
@@ -71,6 +74,7 @@ namespace GeminiCore
                 // Labels
                 else if (labelStmtMatch.Success)
                 {
+                    Console.WriteLine("label statement match");
                     var label = labelStmtMatch.Groups["label"].Value;
                     if (labels.ContainsKey(label))
                     {
@@ -84,33 +88,74 @@ namespace GeminiCore
                 // Memory instruction
                 else if (memStmtMatch.Success)
                 {
+                    Console.WriteLine("memory match");
                     var minst = memStmtMatch.Groups["inst"].Value;
                     var addr = memStmtMatch.Groups["addr"].Value;
-                    lineIndex++;
-                    string[] arr = { minst, addr };
-                    mem.addInstruction(binaryEncode(arr));
+                    var rest = memStmtMatch.Groups["rest"].Value;
+                    Console.WriteLine("rest: " + rest);
+                    if (rest.Length == 0 || rest[0] == '!')
+                    {
+                        lineIndex++;
+                        string[] arr = { minst, addr };
+                        instructions.Add(binaryEncode(arr));
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid memory instruction");
+                    }
+
                 }
                 // Immediate Instruction
                 else if (immStmtMatch.Success)
                 {
+                    Console.WriteLine("immediate match");
                     var inst = immStmtMatch.Groups["inst"].Value;
                     var imm = immStmtMatch.Groups["imm"].Value;
-                    lineIndex++;
-                    string[] arr = { inst, imm, "" };
-                    mem.addInstruction(binaryEncode(arr));
+                    var rest = immStmtMatch.Groups["rest"].Value;
+                    Console.WriteLine("rest: " + rest);
+                    if (rest.Length == 0 || rest[0] == '!')
+                    {
+                        lineIndex++;
+                        string[] arr = { inst, imm, "" };
+                        instructions.Add(binaryEncode(arr));
+                    }
+                    else
+                    {
+                        Console.WriteLine("invalid immediate instruction");
+                    }
                 }
                 // Branch instruction
                 else if (branchStmtMatch.Success)
                 {
+                    Console.WriteLine("branch match");
                     lineIndex++;
                 }
-                // Other statement (nop, nota, hlt)
+                // Other statement w/ comment (nop, nota, hlt)
                 else if (otherStmtMatch.Success)
                 {
+                    Console.WriteLine("other match");
                     var inst = otherStmtMatch.Groups["inst"].Value;
+                    var rest = otherStmtMatch.Groups["rest"].Value;
+                    Console.WriteLine("rest: " + rest);
+                    if (rest.Length == 0 || rest[0] == '!')
+                    {
+                        lineIndex++;
+                        string[] arr = { inst };
+                        instructions.Add(binaryEncode(arr));
+                    }
+                    else
+                    {
+                        Console.WriteLine("invalid other instruction");
+                    }
+                }
+                // Other statement w/o comment
+                else if (otherNoComStmtMatch.Success)
+                {
+                    Console.WriteLine("other match");
+                    var inst = otherNoComStmtMatch.Groups["inst"].Value;
                     lineIndex++;
                     string[] arr = { inst };
-                    mem.addInstruction(binaryEncode(arr));
+                    instructions.Add(binaryEncode(arr));
                 }
             }
             foreach (var line in lines) {
@@ -125,9 +170,41 @@ namespace GeminiCore
                         labelIndex = labels[label];
                     }
                     string[] arr = { inst, labelIndex.ToString() };
-                    mem.addInstruction(binaryEncode(arr));
+                    instructions.Add(binaryEncode(arr));
                 }
 
+            }
+            // write to file
+            FileStream fs = new FileStream(@"C:\Users\Jack\Documents\College\14F\CISC360\g.out", FileMode.Create, FileAccess.ReadWrite);
+            BinaryWriter bw = new BinaryWriter(fs);
+            foreach (short x in instructions)
+            {
+                bw.Write(x);
+                Console.WriteLine(x);
+            }
+            bw.Close();
+
+            // read binary
+            Console.WriteLine("reading binary file");
+            using (BinaryReader br = new BinaryReader(File.Open(@"C:\Users\Jack\Documents\College\14F\CISC360\g.out", FileMode.Open)))
+            {
+                int pos = 0;
+                int length = (int)br.BaseStream.Length;
+                while (pos < length)
+                {
+                    int v = br.ReadInt16();
+                    Console.WriteLine("instruction: " + v);
+
+                    ushort inst = (ushort)(v >> 9);
+                    ushort imm = (ushort)((v & 256) >> 8);
+                    ushort temp = (ushort)(v << 8);
+                    ushort operand = (ushort)(temp >> 8);
+                    Console.WriteLine("inst: " + inst);
+                    Console.WriteLine("imm: " + imm);
+                    Console.WriteLine("operand: " + operand);
+
+                    pos += sizeof(short);
+                }
             }
         }
 
