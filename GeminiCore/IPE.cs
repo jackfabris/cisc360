@@ -44,7 +44,7 @@ namespace GeminiCore
 
         public void ParseFile()
         {
-            List<short> instructions = new List<short>();
+            //List<short> instructions = new List<short>();
             var lines = File.ReadAllLines(this.FileToParse).ToList<string>();
             var lineIndex = 0;
             Dictionary<string, int> labels = new Dictionary<string, int>();
@@ -97,7 +97,7 @@ namespace GeminiCore
                     {
                         lineIndex++;
                         string[] arr = { minst, addr };
-                        instructions.Add(binaryEncode(arr));
+                        mem.Instructions.Add(binaryEncode(arr));
                     }
                     else
                     {
@@ -117,7 +117,7 @@ namespace GeminiCore
                     {
                         lineIndex++;
                         string[] arr = { inst, imm, "" };
-                        instructions.Add(binaryEncode(arr));
+                        mem.Instructions.Add(binaryEncode(arr));
                     }
                     else
                     {
@@ -141,7 +141,7 @@ namespace GeminiCore
                     {
                         lineIndex++;
                         string[] arr = { inst };
-                        instructions.Add(binaryEncode(arr));
+                        mem.Instructions.Add(binaryEncode(arr));
                     }
                     else
                     {
@@ -155,12 +155,12 @@ namespace GeminiCore
                     var inst = otherNoComStmtMatch.Groups["inst"].Value;
                     lineIndex++;
                     string[] arr = { inst };
-                    instructions.Add(binaryEncode(arr));
+                    mem.Instructions.Add(binaryEncode(arr));
                 }
             }
-            foreach (var line in lines) {
+            for (var line = 0; line < lines.Count; line++) {
                 Regex branchInst = new Regex(@"^\s*(?<inst>[a-zA-Z]{2}?)\s(?<label>[a-zA-Z]+$?)");
-                var branchStmtMatch = branchInst.Match(line);
+                var branchStmtMatch = branchInst.Match(lines[line]);
                 if (branchStmtMatch.Success)
                 {
                     var inst = branchStmtMatch.Groups["inst"].Value;
@@ -170,14 +170,14 @@ namespace GeminiCore
                         labelIndex = labels[label];
                     }
                     string[] arr = { inst, labelIndex.ToString() };
-                    instructions.Add(binaryEncode(arr));
+                    mem.Instructions.Insert(line,binaryEncode(arr));
                 }
 
             }
             // write to file
             FileStream fs = new FileStream(@"C:\Users\Jack\Documents\College\14F\CISC360\g.out", FileMode.Create, FileAccess.ReadWrite);
             BinaryWriter bw = new BinaryWriter(fs);
-            foreach (short x in instructions)
+            foreach (short x in mem.Instructions)
             {
                 bw.Write(x);
                 Console.WriteLine(x);
@@ -208,9 +208,9 @@ namespace GeminiCore
             }
         }
 
-        public short binaryEncode(string[] arr)
+        public ushort binaryEncode(string[] arr)
         {
-            short result = 0;
+            ushort result = 0;
             if (arr.Length > 2) //Immediate flag is on
             {
                 if (instBinary.ContainsKey(arr[0]))
@@ -218,10 +218,10 @@ namespace GeminiCore
                     int inst = instBinary[arr[0]];
                     int imm = 256;
                     int operand = Convert.ToInt32(arr[1]);
-                    result = (short)inst;
-                    result = (short)(result << 9);
-                    result = (short)(result | imm); 
-                    result = (short)(result | operand);
+                    result = (ushort)inst;
+                    result = (ushort)(result << 9);
+                    result = (ushort)(result | imm); 
+                    result = (ushort)(result | operand);
                 }
             }
             else if (arr.Length > 1)
@@ -232,10 +232,10 @@ namespace GeminiCore
                         int inst = instBinary[arr[0]];
                         int imm = 0;
                         int operand = Convert.ToInt32(arr[1]);
-                        result = (short)inst;
-                        result = (short)(result << 9);
-                        result = (short)(result | imm);
-                        result = (short)(result | operand);
+                        result = (ushort)inst;
+                        result = (ushort)(result << 9);
+                        result = (ushort)(result | imm);
+                        result = (ushort)(result | operand);
                     }
                 }
             }
@@ -244,8 +244,8 @@ namespace GeminiCore
                 if (instBinary.ContainsKey(arr[0]))
                 {
                     int inst = instBinary[arr[0]];
-                    result = (short)inst;
-                    result = (short)(result << 9);
+                    result = (ushort)inst;
+                    result = (ushort)(result << 9);
                 }
             }
             return result;
