@@ -60,136 +60,165 @@ namespace GeminiCore
             CC = 0;
         }
 
+        public void resetCPU()
+        {
+            A = 0;
+            B = 0;
+            ACC = 0;
+            ZERO = 0;
+            ONE = 0;
+            PC = 0;
+            MAR = 0;
+            MDR = 0;
+            TEMP = 0;
+            IR = 0;
+            CC = 0;
+        }
+
         public void executeInstruction()
         {
-            ushort inst = (ushort)(mem.Instructions[PC] >> 9);
-            ushort imm = (ushort)((mem.Instructions[PC] & 256) >> 8);
-            ushort temp = (ushort)(mem.Instructions[PC] << 8);
-            ushort operand = (ushort)(temp >> 8);
-            Console.WriteLine(inst);
-            switch (inst)
+            if (PC < mem.Instructions.Count)
             {
-                case 1:
-                    if (imm == 1)
-                    {
-                        ACC = operand;
-                    }
-                    else
-                    {
-                        ACC = mem.memory[operand];
-                    }
-                    PC++;
-                    break;
-                case 2:
-                    mem.memory[operand] = ACC;
-                    PC++;
-                    break;
-                case 3:
-                    if (imm == 1)
-                    {
-                        ACC += operand;
-                    }
-                    else
-                    {
-                        ACC += mem.memory[operand];
-                    }
-                    PC++;
-                    break;
-                case 4:
-                    if (imm == 1)
-                    {
-                        ACC -= operand;
-                    }
-                    else
-                    {
-                        ACC -= mem.memory[operand];
-                    }
-                    PC++;
-                    break;
-                case 5:
-                    if (imm == 1)
-                    {
-                        ACC *= operand;
-                    }
-                    else
-                    {
-                        ACC *= mem.memory[operand];
-                    }
-                    PC++;
-                    break;
-                case 6:
-                    if (imm == 1)
-                    {
-                        ACC /= operand;
-                    }
-                    else
-                    {
-                        ACC /= mem.memory[operand];
-                    }
-                    PC++;
-                    break;
-                case 7:
-                    if (imm == 1)
-                    {
-                        ACC = ACC & operand;
-                    }
-                    else
-                    {
-                        ACC = ACC & mem.memory[operand];
-                    }
-                    PC++;
-                    break;
-                case 8:
-                    if (imm == 1)
-                    {
-                        ACC = ACC | operand;
-                    }
-                    else
-                    {
-                        ACC = ACC | mem.memory[operand];
-                    }
-                    PC++;
-                    break;
-                case 9:
-                    ACC = ACC << operand;
-                    PC++;
-                    break;
-                case 10:
-                    ACC = ~ACC;
-                    PC++;
-                    break;
-                case 11:
-                    PC = operand;
-                    break;
-                case 12:
-                    if (ACC == 0)
-                    {
+                ushort inst = (ushort)(mem.Instructions[PC] >> 9);
+                ushort imm = (ushort)((mem.Instructions[PC] & 256) >> 8);
+                ushort temp = (ushort)(mem.Instructions[PC] << 8);
+                ushort operand = (ushort)(temp >> 8);
+                switch (inst)
+                {
+                    case 1:
+                        if (imm == 1)
+                        {
+                            ACC = operand;
+                        }
+                        else
+                        {
+                            ACC = mem.memory[operand];
+                        }
+                        PC++;
+                        break;
+                    case 2:
+                        mem.memory[operand] = ACC;
+                        PC++;
+                        break;
+                    case 3:
+                        if (imm == 1)
+                        {
+                            ACC += operand;
+                        }
+                        else
+                        {
+                            ACC += mem.memory[operand];
+                        }
+                        PC++;
+                        break;
+                    case 4:
+                        if (imm == 1)
+                        {
+                            ACC -= operand;
+                        }
+                        else
+                        {
+                            ACC -= mem.memory[operand];
+                        }
+                        PC++;
+                        break;
+                    case 5:
+                        if (imm == 1)
+                        {
+                            ACC *= operand;
+                        }
+                        else
+                        {
+                            ACC *= mem.memory[operand];
+                        }
+                        PC++;
+                        break;
+                    case 6:
+                        if (imm == 1)
+                        {
+                            ACC /= operand;
+                        }
+                        else
+                        {
+                            ACC /= mem.memory[operand];
+                        }
+                        PC++;
+                        break;
+                    case 7:
+                        if (imm == 1)
+                        {
+                            ACC = ACC & operand;
+                        }
+                        else
+                        {
+                            ACC = ACC & mem.memory[operand];
+                        }
+                        PC++;
+                        break;
+                    case 8:
+                        if (imm == 1)
+                        {
+                            ACC = ACC | operand;
+                        }
+                        else
+                        {
+                            ACC = ACC | mem.memory[operand];
+                        }
+                        PC++;
+                        break;
+                    case 9:
+                        ACC = ACC << operand;
+                        PC++;
+                        break;
+                    case 10:
+                        ACC = ~ACC;
+                        PC++;
+                        break;
+                    case 11:
                         PC = operand;
-                    }
-                    break;
-                case 13:
-                    Console.WriteLine(ACC);
-                    if (ACC < 0)
-                    {
-                        PC = operand;
-                    }
-                    break;
-                case 14:
-                    if (ACC > 0)
-                    {
-                        PC = operand;
-                    }
-                    break;
-                case 15:
-                    ACC += ZERO;
-                    PC++;
-                    break;
-                case 16:
-                    PC = mem.Instructions.Count;
-                    PC++;
-                    break;
-                default:
-                    break;
+                        break;
+                    case 12:
+                        if (ACC == 0)
+                        {
+                            PC = operand;
+                        }
+                        else
+                        {
+                            PC++;
+                        }
+                        break;
+                    case 13:
+                        Console.WriteLine(ACC);
+                        if (ACC < 0)
+                        {
+                            PC = operand;
+                        }
+                        else
+                        {
+                            PC++;
+                        }
+                        break;
+                    case 14:
+                        if (ACC > 0)
+                        {
+                            PC = operand;
+                        }
+                        else
+                        {
+                            PC++;
+                        }
+                        break;
+                    case 15:
+                        ACC += ZERO;
+                        PC++;
+                        break;
+                    case 16:
+                        PC = mem.Instructions.Count;
+                        PC++;
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -201,16 +230,39 @@ namespace GeminiCore
             }
         }
 
+        public string firstInstToString()
+        {
+            if (mem.Instructions.Count > 0)
+            {
+                string instruction = "";
+                ushort inst = (ushort)(mem.Instructions[0] >> 9);
+                ushort imm = (ushort)((mem.Instructions[0] & 256) >> 8);
+                ushort temp = (ushort)(mem.Instructions[0] << 8);
+                ushort operand = (ushort)(temp >> 8);
+
+                instruction = instBinary[inst] + " " + imm + " " + operand;
+                return instruction;
+            }
+            return "No Instructions";
+        }
+
         public string nextInstToString()
         {
-            string instruction = "";
-            ushort inst = (ushort)(mem.Instructions[PC] >> 9);
-            ushort imm = (ushort)((mem.Instructions[PC] & 256) >> 8);
-            ushort temp = (ushort)(mem.Instructions[PC] << 8);
-            ushort operand = (ushort)(temp >> 8);
+            if (PC < mem.Instructions.Count)
+            {
+                string instruction = "";
+                ushort inst = (ushort)(mem.Instructions[PC] >> 9);
+                ushort imm = (ushort)((mem.Instructions[PC] & 256) >> 8);
+                ushort temp = (ushort)(mem.Instructions[PC] << 8);
+                ushort operand = (ushort)(temp >> 8);
 
-            instruction = instBinary[inst] + " " + imm + " " + operand;
-            return instruction;
+                instruction = instBinary[inst] + " " + imm + " " + operand;
+                return instruction;
+            }
+            else
+            {
+                return "End of program";
+            }
         }
     }
 }

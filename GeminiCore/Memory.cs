@@ -14,5 +14,11 @@ namespace GeminiCore
         public List<ushort> Instructions = new List<ushort>();   // Instruction Vector
         public int[] memory = new int[256];// Main Memory
 
+        public void clear()
+        {
+            Instructions.Clear();
+            memory = new int[256];
+        }
+
     }
 }

@@ -158,10 +158,27 @@ namespace GeminiCore
                     mem.Instructions.Add(binaryEncode(arr));
                 }
             }
+            var index = 0;
             for (var line = 0; line < lines.Count; line++) {
-                Regex branchInst = new Regex(@"^\s*(?<inst>[a-zA-Z]{2}?)\s(?<label>[a-zA-Z]+$?)");
+                Regex labelStmtFormat = new Regex(@"^\s*(?<label>.*?)\s*:$");
+                Regex emptyLine = new Regex(@"^\s*$");
+                Regex comment = new Regex(@"\s*!(.*)$");
+                Regex memInst = new Regex(@"^\s*(?<inst>[a-zA-Z]{2,4}?)\s\$(?<addr>\d*)\s*(?<rest>.*)");
+                Regex immInst = new Regex(@"^\s*(?<inst>[a-zA-Z]{2,4}?)\s\#\$(?<imm>\d*)\s*(?<rest>.*)");
+                Regex branchInst = new Regex(@"^\s*(?<inst>[a-zA-Z]{2}?)\s(?<label>[a-zA-Z]+$?)\s*(?<rest>.*)");
+                Regex otherInst = new Regex(@"^\s*(?<inst>[a-zA-Z]{3,}?)\s+(?<rest>.*)");
+                Regex otherInstNoCom = new Regex(@"^\s*(?<inst>[a-zA-Z]*?)$");
+                var labelStmtMatch = labelStmtFormat.Match(lines[line]);
+                var memStmtMatch = memInst.Match(lines[line]);
+                var immStmtMatch = immInst.Match(lines[line]);
                 var branchStmtMatch = branchInst.Match(lines[line]);
-                if (branchStmtMatch.Success)
+                var otherStmtMatch = otherInst.Match(lines[line]);
+                var otherNoComStmtMatch = otherInstNoCom.Match(lines[line]);
+                if (memStmtMatch.Success || immStmtMatch.Success || otherStmtMatch.Success || otherNoComStmtMatch.Success)
+                {
+                    index++;
+                }
+                else if (branchStmtMatch.Success)
                 {
                     var inst = branchStmtMatch.Groups["inst"].Value;
                     var labelIndex = 0;
@@ -170,9 +187,9 @@ namespace GeminiCore
                         labelIndex = labels[label];
                     }
                     string[] arr = { inst, labelIndex.ToString() };
-                    mem.Instructions.Insert(line,binaryEncode(arr));
+                    mem.Instructions.Insert(index - 1,binaryEncode(arr));
+                    index++;
                 }
-
             }
             // write to file
             FileStream fs = new FileStream(@"C:\Users\Jack\Documents\College\14F\CISC360\g.out", FileMode.Create, FileAccess.ReadWrite);

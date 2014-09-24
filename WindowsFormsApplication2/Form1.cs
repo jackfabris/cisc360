@@ -31,6 +31,8 @@ namespace WindowsFormsApplication2
         #region Events
         private void loadFileButton_Click(object sender, EventArgs e)
         {
+            myCPU.resetCPU();
+            myMem.clear();
             using (var ofd = new OpenFileDialog())
             {
                 if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -41,8 +43,6 @@ namespace WindowsFormsApplication2
                         ipe.mem = myMem;
                         myCPU.mem = myMem;
                         ipe.ParseFile();
-
-                        this.setCPUValuesToView();
                     }
                     catch (Exception err)
                     {
@@ -50,6 +50,23 @@ namespace WindowsFormsApplication2
                     }
                 }
             }
+            setInitialCPUValuesToView();
+        }
+        private void runToEndButton_Click(object sender, EventArgs e)
+        {
+            this.myCPU.executeAllInstructions();
+            this.setCPUValuesToView();
+        }
+
+        private void reloadButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void resetCPUButton_Click(object sender, EventArgs e)
+        {
+            myCPU.resetCPU();
+            myMem.clear();
         }
         #endregion
 
@@ -57,6 +74,23 @@ namespace WindowsFormsApplication2
         {
             this.myCPU.executeInstruction();
             this.setCPUValuesToView();
+        }
+
+        public void setInitialCPUValuesToView()
+        {
+            this.aLabel.Text = this.myCPU.A.ToString();
+            this.bLabel.Text = this.myCPU.B.ToString();
+            this.accLabel.Text = this.myCPU.ACC.ToString();
+            this.zeroLabel.Text = this.myCPU.ZERO.ToString();
+            this.oneLabel.Text = this.myCPU.ONE.ToString();
+            this.pcLabel.Text = this.myCPU.PC.ToString();
+            this.marLabel.Text = this.myCPU.MAR.ToString();
+            this.mdrLabel.Text = this.myCPU.MDR.ToString();
+            this.tempLabel.Text = this.myCPU.TEMP.ToString();
+            this.irLabel.Text = this.myCPU.IR.ToString();
+            this.ccLabel.Text = this.myCPU.CC.ToString();
+            this.instructionIndexLabel.Text = this.myCPU.PC.ToString();
+            this.nextInstructionLabel.Text = this.myCPU.firstInstToString();
         }
 
         public void setCPUValuesToView()
@@ -74,22 +108,6 @@ namespace WindowsFormsApplication2
             this.ccLabel.Text = this.myCPU.CC.ToString();
             this.instructionIndexLabel.Text = this.myCPU.PC.ToString();
             this.nextInstructionLabel.Text = this.myCPU.nextInstToString();
-        }
-
-        private void runToEndButton_Click(object sender, EventArgs e)
-        {
-            this.myCPU.executeAllInstructions();
-            this.setCPUValuesToView();
-        }
-
-        private void reloadButton_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void resetCPUButton_Click(object sender, EventArgs e)
-        {
-            
         }
     }
 }
