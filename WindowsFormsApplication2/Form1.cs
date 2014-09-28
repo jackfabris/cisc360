@@ -78,34 +78,34 @@ namespace WindowsFormsApplication2
 
         public void setInitialCPUValuesToView()
         {
-            this.aLabel.Text = this.myCPU.A.ToString();
-            this.bLabel.Text = this.myCPU.B.ToString();
-            this.accLabel.Text = this.myCPU.ACC.ToString();
-            this.zeroLabel.Text = this.myCPU.ZERO.ToString();
-            this.oneLabel.Text = this.myCPU.ONE.ToString();
-            this.pcLabel.Text = this.myCPU.PC.ToString();
-            this.marLabel.Text = this.myCPU.MAR.ToString();
-            this.mdrLabel.Text = this.myCPU.MDR.ToString();
-            this.tempLabel.Text = this.myCPU.TEMP.ToString();
-            this.irLabel.Text = this.myCPU.IR.ToString();
-            this.ccLabel.Text = this.myCPU.CC.ToString();
+            this.aLabel.Text = "0x" + this.myCPU.A.ToString("x8");
+            this.bLabel.Text = "0x" + this.myCPU.B.ToString("x8");
+            this.accLabel.Text = "0x" + this.myCPU.ACC.ToString("x8");
+            this.zeroLabel.Text = "0x" + this.myCPU.ZERO.ToString("x8");
+            this.oneLabel.Text = "0x" + this.myCPU.ONE.ToString("x8");
+            this.pcLabel.Text = "0x" + this.myCPU.PC.ToString("x8");
+            this.marLabel.Text = "0x" + this.myCPU.MAR.ToString("x8");
+            this.mdrLabel.Text = "0x" + this.myCPU.MDR.ToString("x8");
+            this.tempLabel.Text = "0x" + this.myCPU.TEMP.ToString("x8");
+            this.irLabel.Text = "0x" + this.myCPU.IR.ToString("x8");
+            this.ccLabel.Text = "0x" + this.myCPU.CC.ToString("x8");
             this.instructionIndexLabel.Text = this.myCPU.PC.ToString();
             this.nextInstructionLabel.Text = this.myCPU.firstInstToString();
         }
 
         public void setCPUValuesToView()
         {
-            this.aLabel.Text = this.myCPU.A.ToString();
-            this.bLabel.Text = this.myCPU.B.ToString();
-            this.accLabel.Text = this.myCPU.ACC.ToString();
-            this.zeroLabel.Text = this.myCPU.ZERO.ToString();
-            this.oneLabel.Text = this.myCPU.ONE.ToString();
-            this.pcLabel.Text = this.myCPU.PC.ToString();
-            this.marLabel.Text = this.myCPU.MAR.ToString();
-            this.mdrLabel.Text = this.myCPU.MDR.ToString();
-            this.tempLabel.Text = this.myCPU.TEMP.ToString();
-            this.irLabel.Text = this.myCPU.IR.ToString();
-            this.ccLabel.Text = this.myCPU.CC.ToString();
+            this.aLabel.Text = "0x" + this.myCPU.A.ToString("x8");
+            this.bLabel.Text = "0x" + this.myCPU.B.ToString("x8");
+            this.accLabel.Text = "0x" + this.myCPU.ACC.ToString("x8");
+            this.zeroLabel.Text = "0x" + this.myCPU.ZERO.ToString("x8");
+            this.oneLabel.Text = "0x" + this.myCPU.ONE.ToString("x8");
+            this.pcLabel.Text = "0x" + this.myCPU.PC.ToString("x8");
+            this.marLabel.Text = "0x" + this.myCPU.MAR.ToString("x8");
+            this.mdrLabel.Text = "0x" + this.myCPU.MDR.ToString("x8");
+            this.tempLabel.Text = "0x" + this.myCPU.TEMP.ToString("x8");
+            this.irLabel.Text = "0x" + this.myCPU.IR.ToString("x8");
+            this.ccLabel.Text = "0x" + this.myCPU.CC.ToString("x8");
             this.instructionIndexLabel.Text = this.myCPU.PC.ToString();
             this.nextInstructionLabel.Text = this.myCPU.nextInstToString();
         }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace GeminiCore
 {
@@ -51,7 +52,7 @@ namespace GeminiCore
             B = 0;
             ACC = 0;
             ZERO = 0;
-            ONE = 0;
+            ONE = 1;
             PC = 0;
             MAR = 0;
             MDR = 0;
@@ -66,7 +67,7 @@ namespace GeminiCore
             B = 0;
             ACC = 0;
             ZERO = 0;
-            ONE = 0;
+            ONE = 1;
             PC = 0;
             MAR = 0;
             MDR = 0;
@@ -83,6 +84,16 @@ namespace GeminiCore
                 ushort imm = (ushort)((mem.Instructions[PC] & 256) >> 8);
                 ushort temp = (ushort)(mem.Instructions[PC] << 8);
                 ushort operand = (ushort)(temp >> 8);
+
+                if (imm == 0)
+                {
+                    if (operand > 255)
+                    {
+                        MessageBox.Show("Runtime error: segmentation fault at instruction " + PC, 
+                            "Runtime Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+
                 switch (inst)
                 {
                     case 1:

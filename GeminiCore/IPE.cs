@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace GeminiCore
 {
@@ -46,11 +47,13 @@ namespace GeminiCore
         {
             //List<short> instructions = new List<short>();
             var lines = File.ReadAllLines(this.FileToParse).ToList<string>();
+            var instructionIndex = 0;
             var lineIndex = 0;
             Dictionary<string, int> labels = new Dictionary<string, int>();
 
             foreach (var line in lines)
             {
+                lineIndex++;
                 Regex labelStmtFormat = new Regex(@"^\s*(?<label>.*?)\s*:$");
                 Regex emptyLine = new Regex(@"^\s*$");
                 Regex comment = new Regex(@"\s*!(.*)$");
@@ -78,11 +81,11 @@ namespace GeminiCore
                     var label = labelStmtMatch.Groups["label"].Value;
                     if (labels.ContainsKey(label))
                     {
-                        labels[label] = lineIndex + 1;
+                        labels[label] = instructionIndex + 1;
                     }
                     else
                     {
-                        labels.Add(label, lineIndex + 1);
+                        labels.Add(label, instructionIndex + 1);
                     }
                 }
                 // Memory instruction
@@ -95,13 +98,21 @@ namespace GeminiCore
                     Console.WriteLine("rest: " + rest);
                     if (rest.Length == 0 || rest[0] == '!')
                     {
-                        lineIndex++;
+                        if (Convert.ToInt32(addr) > 255)
+                        {
+                            MessageBox.Show("Segmentation fault", "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            break;
+                        }
+                        instructionIndex++;
                         string[] arr = { minst, addr };
                         mem.Instructions.Add(binaryEncode(arr));
                     }
                     else
                     {
-                        Console.WriteLine("Invalid memory instruction");
+                        MessageBox.Show("Invalid memory instruction at line " + lineIndex, 
+                            "Invalid Instruction", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        break;
                     }
 
                 }
@@ -115,20 +126,22 @@ namespace GeminiCore
                     Console.WriteLine("rest: " + rest);
                     if (rest.Length == 0 || rest[0] == '!')
                     {
-                        lineIndex++;
+                        instructionIndex++;
                         string[] arr = { inst, imm, "" };
                         mem.Instructions.Add(binaryEncode(arr));
                     }
                     else
                     {
-                        Console.WriteLine("invalid immediate instruction");
+                        MessageBox.Show("Invalid immediate instruction at line " + lineIndex, 
+                            "Invalid Instruction", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        break;
                     }
                 }
                 // Branch instruction
                 else if (branchStmtMatch.Success)
                 {
                     Console.WriteLine("branch match");
-                    lineIndex++;
+                    instructionIndex++;
                 }
                 // Other statement w/ comment (nop, nota, hlt)
                 else if (otherStmtMatch.Success)
@@ -139,13 +152,15 @@ namespace GeminiCore
                     Console.WriteLine("rest: " + rest);
                     if (rest.Length == 0 || rest[0] == '!')
                     {
-                        lineIndex++;
+                        instructionIndex++;
                         string[] arr = { inst };
                         mem.Instructions.Add(binaryEncode(arr));
                     }
                     else
                     {
-                        Console.WriteLine("invalid other instruction");
+                        MessageBox.Show("Invalid other instruction at line " + lineIndex, 
+                            "Invalid Instruction", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        break;
                     }
                 }
                 // Other statement w/o comment
@@ -153,7 +168,7 @@ namespace GeminiCore
                 {
                     Console.WriteLine("other match");
                     var inst = otherNoComStmtMatch.Groups["inst"].Value;
-                    lineIndex++;
+                    instructionIndex++;
                     string[] arr = { inst };
                     mem.Instructions.Add(binaryEncode(arr));
                 }
@@ -187,7 +202,7 @@ namespace GeminiCore
                         labelIndex = labels[label];
                     }
                     string[] arr = { inst, labelIndex.ToString() };
-                    mem.Instructions.Insert(index - 1,binaryEncode(arr));
+                    mem.Instructions.Insert(index - 1, binaryEncode(arr));
                     index++;
                 }
             }
