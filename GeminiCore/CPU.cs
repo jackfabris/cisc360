@@ -189,7 +189,7 @@ namespace GeminiCore
                         PC = operand;
                         break;
                     case 12:
-                        if (ACC == 0)
+                        if (CC == 0)
                         {
                             PC = operand;
                         }
@@ -199,7 +199,7 @@ namespace GeminiCore
                         }
                         break;
                     case 13:
-                        if (ACC < 0)
+                        if (CC == -1)
                         {
                             PC = operand;
                         }
@@ -209,7 +209,7 @@ namespace GeminiCore
                         }
                         break;
                     case 14:
-                        if (ACC > 0)
+                        if (CC == 1)
                         {
                             PC = operand;
                         }
@@ -229,6 +229,18 @@ namespace GeminiCore
                     default:
                         break;
                 }
+                if (ACC > 0)
+                {
+                    CC = 1;
+                }
+                else if (ACC < 0)
+                {
+                    CC = -1;
+                }
+                else
+                {
+                    CC = 0;
+                }
             }
         }
 
@@ -242,16 +254,23 @@ namespace GeminiCore
 
         public string firstInstToString()
         {
-            if (mem.Instructions.Count > 0)
+            try
             {
-                string instruction = "";
-                ushort inst = (ushort)(mem.Instructions[0] >> 9);
-                ushort imm = (ushort)((mem.Instructions[0] & 256) >> 8);
-                ushort temp = (ushort)(mem.Instructions[0] << 8);
-                ushort operand = (ushort)(temp >> 8);
+                if (mem.Instructions.Count > 0)
+                {
+                    string instruction = "";
+                    ushort inst = (ushort)(mem.Instructions[0] >> 9);
+                    ushort imm = (ushort)((mem.Instructions[0] & 256) >> 8);
+                    ushort temp = (ushort)(mem.Instructions[0] << 8);
+                    ushort operand = (ushort)(temp >> 8);
 
-                instruction = instBinary[inst] + " " + imm + " " + operand;
-                return instruction;
+                    instruction = instBinary[inst] + " " + imm + " " + operand;
+                    return instruction;
+                }
+            }
+            catch(Exception e)
+            {
+                return "No Instructions";
             }
             return "No Instructions";
         }

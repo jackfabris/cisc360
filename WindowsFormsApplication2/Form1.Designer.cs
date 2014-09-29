@@ -60,7 +60,6 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label25 = new System.Windows.Forms.Label();
             this.label26 = new System.Windows.Forms.Label();
-            this.reloadButton = new System.Windows.Forms.Button();
             this.resetCPUButton = new System.Windows.Forms.Button();
             this.instructionIndexLabel = new System.Windows.Forms.Label();
             this.nextInstructionLabel = new System.Windows.Forms.Label();
@@ -90,7 +89,7 @@
             // 
             // loadFileButton
             // 
-            this.loadFileButton.Location = new System.Drawing.Point(148, 19);
+            this.loadFileButton.Location = new System.Drawing.Point(236, 19);
             this.loadFileButton.Margin = new System.Windows.Forms.Padding(2);
             this.loadFileButton.Name = "loadFileButton";
             this.loadFileButton.Size = new System.Drawing.Size(83, 32);
@@ -380,16 +379,6 @@
             this.label26.TabIndex = 30;
             this.label26.Text = "Next Instruction:";
             // 
-            // reloadButton
-            // 
-            this.reloadButton.Location = new System.Drawing.Point(236, 19);
-            this.reloadButton.Name = "reloadButton";
-            this.reloadButton.Size = new System.Drawing.Size(83, 32);
-            this.reloadButton.TabIndex = 31;
-            this.reloadButton.Text = "Reload";
-            this.reloadButton.UseVisualStyleBackColor = true;
-            this.reloadButton.Click += new System.EventHandler(this.reloadButton_Click);
-            // 
             // resetCPUButton
             // 
             this.resetCPUButton.Location = new System.Drawing.Point(324, 19);
@@ -428,7 +417,6 @@
             this.Controls.Add(this.nextInstructionLabel);
             this.Controls.Add(this.instructionIndexLabel);
             this.Controls.Add(this.resetCPUButton);
-            this.Controls.Add(this.reloadButton);
             this.Controls.Add(this.label26);
             this.Controls.Add(this.label25);
             this.Controls.Add(this.pictureBox1);
@@ -502,7 +490,6 @@
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.Label label26;
-        private System.Windows.Forms.Button reloadButton;
         private System.Windows.Forms.Button resetCPUButton;
         private System.Windows.Forms.Label instructionIndexLabel;
         private System.Windows.Forms.Label nextInstructionLabel;

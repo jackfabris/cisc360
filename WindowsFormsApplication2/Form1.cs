@@ -46,8 +46,7 @@ namespace WindowsFormsApplication2
                     }
                     catch (Exception err)
                     {
-                        MessageBox.Show("Error loading assembly file", "Error",
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                   
                     }
                 }
             }
@@ -68,7 +67,7 @@ namespace WindowsFormsApplication2
         {
             myCPU.resetCPU();
             myMem.clear();
-            this.setCPUValuesToView();
+            setInitialCPUValuesToView();
         }
         #endregion
 

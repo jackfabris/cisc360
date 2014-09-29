@@ -77,7 +77,6 @@ namespace GeminiCore
                 // Labels
                 else if (labelStmtMatch.Success)
                 {
-                    Console.WriteLine("label statement match");
                     var label = labelStmtMatch.Groups["label"].Value;
                     if (labels.ContainsKey(label))
                     {
@@ -91,11 +90,9 @@ namespace GeminiCore
                 // Memory instruction
                 else if (memStmtMatch.Success)
                 {
-                    Console.WriteLine("memory match");
                     var minst = memStmtMatch.Groups["inst"].Value;
                     var addr = memStmtMatch.Groups["addr"].Value;
                     var rest = memStmtMatch.Groups["rest"].Value;
-                    Console.WriteLine("rest: " + rest);
                     if (rest.Length == 0 || rest[0] == '!')
                     {
                         if (Convert.ToInt32(addr) > 255)
@@ -119,11 +116,9 @@ namespace GeminiCore
                 // Immediate Instruction
                 else if (immStmtMatch.Success)
                 {
-                    Console.WriteLine("immediate match");
                     var inst = immStmtMatch.Groups["inst"].Value;
                     var imm = immStmtMatch.Groups["imm"].Value;
                     var rest = immStmtMatch.Groups["rest"].Value;
-                    Console.WriteLine("rest: " + rest);
                     if (rest.Length == 0 || rest[0] == '!')
                     {
                         instructionIndex++;
@@ -140,16 +135,13 @@ namespace GeminiCore
                 // Branch instruction
                 else if (branchStmtMatch.Success)
                 {
-                    Console.WriteLine("branch match");
                     instructionIndex++;
                 }
                 // Other statement w/ comment (nop, nota, hlt)
                 else if (otherStmtMatch.Success)
                 {
-                    Console.WriteLine("other match");
                     var inst = otherStmtMatch.Groups["inst"].Value;
                     var rest = otherStmtMatch.Groups["rest"].Value;
-                    Console.WriteLine("rest: " + rest);
                     if (rest.Length == 0 || rest[0] == '!')
                     {
                         instructionIndex++;
@@ -166,7 +158,6 @@ namespace GeminiCore
                 // Other statement w/o comment
                 else if (otherNoComStmtMatch.Success)
                 {
-                    Console.WriteLine("other match");
                     var inst = otherNoComStmtMatch.Groups["inst"].Value;
                     instructionIndex++;
                     string[] arr = { inst };
@@ -212,32 +203,8 @@ namespace GeminiCore
             foreach (short x in mem.Instructions)
             {
                 bw.Write(x);
-                Console.WriteLine(x);
             }
             bw.Close();
-
-            // read binary
-            Console.WriteLine("reading binary file");
-            using (BinaryReader br = new BinaryReader(File.Open(@"C:\Users\Jack\Documents\College\14F\CISC360\g.out", FileMode.Open)))
-            {
-                int pos = 0;
-                int length = (int)br.BaseStream.Length;
-                while (pos < length)
-                {
-                    int v = br.ReadInt16();
-                    Console.WriteLine("instruction: " + v);
-
-                    ushort inst = (ushort)(v >> 9);
-                    ushort imm = (ushort)((v & 256) >> 8);
-                    ushort temp = (ushort)(v << 8);
-                    ushort operand = (ushort)(temp >> 8);
-                    Console.WriteLine("inst: " + inst);
-                    Console.WriteLine("imm: " + imm);
-                    Console.WriteLine("operand: " + operand);
-
-                    pos += sizeof(short);
-                }
-            }
         }
 
         public ushort binaryEncode(string[] arr)
