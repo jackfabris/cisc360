@@ -100,7 +100,7 @@ namespace GeminiCore
                     {
                         if (Convert.ToInt32(addr) > 255)
                         {
-                            MessageBox.Show("Segmentation fault", "Error",
+                            MessageBox.Show("Segmentation fault at line " + lineIndex, "Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                             break;
                         }

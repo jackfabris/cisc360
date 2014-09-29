@@ -199,7 +199,6 @@ namespace GeminiCore
                         }
                         break;
                     case 13:
-                        Console.WriteLine(ACC);
                         if (ACC < 0)
                         {
                             PC = operand;
