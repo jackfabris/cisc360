@@ -193,7 +193,7 @@ namespace GeminiCore
                         labelIndex = labels[label];
                     }
                     string[] arr = { inst, labelIndex.ToString() };
-                    mem.Instructions.Insert(index - 1, binaryEncode(arr));
+                    mem.Instructions.Insert(index, binaryEncode(arr));
                     index++;
                 }
             }

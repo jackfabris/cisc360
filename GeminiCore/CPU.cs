@@ -158,23 +158,47 @@ namespace GeminiCore
                     case 7:
                         if (imm == 1)
                         {
-                            ACC = ACC & operand;
+                            if (ACC > 0 && operand > 0)
+                            {
+                                ACC = 1;
+                            }
+                            else
+                            {
+                                ACC = 0;
+                            }
                         }
                         else
                         {
-                            ACC = ACC & mem.memory[operand];
+                            if (ACC > 0 && mem.memory[operand] > 0)
+                            {
+                                ACC = 1;
+                            }
+                            else
+                            {
+                                ACC = 0;
+                            }
                         }
                         PC++;
                         break;
                     case 8:
                         if (imm == 1)
-                        {
-                            ACC = ACC | operand;
-                        }
+                            if (ACC > 0 || operand > 0)
+                            {
+                                ACC = 1;
+                            }
+                            else
+                            {
+                                ACC = 0;
+                            }
                         else
-                        {
-                            ACC = ACC | mem.memory[operand];
-                        }
+                            if (ACC > 0 || mem.memory[operand] > 0)
+                            {
+                                ACC = 1;
+                            }
+                            else
+                            {
+                                ACC = 0;
+                            }
                         PC++;
                         break;
                     case 9:
@@ -182,7 +206,8 @@ namespace GeminiCore
                         PC++;
                         break;
                     case 10:
-                        ACC = ~ACC;
+                        if (ACC > 0) ACC = 0;
+                        else ACC = 1;
                         PC++;
                         break;
                     case 11:
