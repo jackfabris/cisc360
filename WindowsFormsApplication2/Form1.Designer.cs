@@ -63,6 +63,18 @@
             this.resetCPUButton = new System.Windows.Forms.Button();
             this.instructionIndexLabel = new System.Windows.Forms.Label();
             this.nextInstructionLabel = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.hitMissLabel = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.hitCountLabel = new System.Windows.Forms.Label();
+            this.missCountLabel = new System.Windows.Forms.Label();
+            this.cacheTypeDropdown = new System.Windows.Forms.ComboBox();
+            this.cacheSizeDropdown = new System.Windows.Forms.ComboBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.blockSizeDropdown = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -409,11 +421,151 @@
             this.nextInstructionLabel.TabIndex = 34;
             this.nextInstructionLabel.Text = "- - -";
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(17, 317);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(45, 15);
+            this.label3.TabIndex = 35;
+            this.label3.Text = "Cache:";
+            // 
+            // hitMissLabel
+            // 
+            this.hitMissLabel.AutoSize = true;
+            this.hitMissLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hitMissLabel.Location = new System.Drawing.Point(122, 317);
+            this.hitMissLabel.Name = "hitMissLabel";
+            this.hitMissLabel.Size = new System.Drawing.Size(25, 15);
+            this.hitMissLabel.TabIndex = 36;
+            this.hitMissLabel.Text = "- - -";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.Location = new System.Drawing.Point(17, 334);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(61, 15);
+            this.label13.TabIndex = 37;
+            this.label13.Text = "Total Hits:";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label14.Location = new System.Drawing.Point(17, 351);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(79, 15);
+            this.label14.TabIndex = 38;
+            this.label14.Text = "Total Misses:";
+            // 
+            // hitCountLabel
+            // 
+            this.hitCountLabel.AutoSize = true;
+            this.hitCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hitCountLabel.Location = new System.Drawing.Point(122, 334);
+            this.hitCountLabel.Name = "hitCountLabel";
+            this.hitCountLabel.Size = new System.Drawing.Size(14, 15);
+            this.hitCountLabel.TabIndex = 39;
+            this.hitCountLabel.Text = "0";
+            // 
+            // missCountLabel
+            // 
+            this.missCountLabel.AutoSize = true;
+            this.missCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.missCountLabel.Location = new System.Drawing.Point(122, 351);
+            this.missCountLabel.Name = "missCountLabel";
+            this.missCountLabel.Size = new System.Drawing.Size(14, 15);
+            this.missCountLabel.TabIndex = 40;
+            this.missCountLabel.Text = "0";
+            // 
+            // cacheTypeDropdown
+            // 
+            this.cacheTypeDropdown.DisplayMember = "Direct";
+            this.cacheTypeDropdown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cacheTypeDropdown.FormattingEnabled = true;
+            this.cacheTypeDropdown.Items.AddRange(new object[] {
+            "Direct Mapped",
+            "2-Way Set Associative"});
+            this.cacheTypeDropdown.Location = new System.Drawing.Point(285, 321);
+            this.cacheTypeDropdown.Name = "cacheTypeDropdown";
+            this.cacheTypeDropdown.Size = new System.Drawing.Size(121, 21);
+            this.cacheTypeDropdown.TabIndex = 41;
+            // 
+            // cacheSizeDropdown
+            // 
+            this.cacheSizeDropdown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cacheSizeDropdown.FormattingEnabled = true;
+            this.cacheSizeDropdown.Items.AddRange(new object[] {
+            "2",
+            "8",
+            "16"});
+            this.cacheSizeDropdown.Location = new System.Drawing.Point(285, 345);
+            this.cacheSizeDropdown.Name = "cacheSizeDropdown";
+            this.cacheSizeDropdown.Size = new System.Drawing.Size(121, 21);
+            this.cacheSizeDropdown.TabIndex = 42;
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label15.Location = new System.Drawing.Point(205, 322);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(74, 15);
+            this.label15.TabIndex = 43;
+            this.label15.Text = "Cache Type:";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label16.Location = new System.Drawing.Point(205, 346);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(72, 15);
+            this.label16.TabIndex = 44;
+            this.label16.Text = "Cache Size:";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label17.Location = new System.Drawing.Point(205, 370);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(67, 15);
+            this.label17.TabIndex = 45;
+            this.label17.Text = "Block Size:";
+            // 
+            // blockSizeDropdown
+            // 
+            this.blockSizeDropdown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.blockSizeDropdown.FormattingEnabled = true;
+            this.blockSizeDropdown.Items.AddRange(new object[] {
+            "1",
+            "2"});
+            this.blockSizeDropdown.Location = new System.Drawing.Point(285, 369);
+            this.blockSizeDropdown.Name = "blockSizeDropdown";
+            this.blockSizeDropdown.Size = new System.Drawing.Size(121, 21);
+            this.blockSizeDropdown.TabIndex = 46;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(418, 326);
+            this.ClientSize = new System.Drawing.Size(418, 395);
+            this.Controls.Add(this.blockSizeDropdown);
+            this.Controls.Add(this.label17);
+            this.Controls.Add(this.label16);
+            this.Controls.Add(this.label15);
+            this.Controls.Add(this.cacheSizeDropdown);
+            this.Controls.Add(this.cacheTypeDropdown);
+            this.Controls.Add(this.missCountLabel);
+            this.Controls.Add(this.hitCountLabel);
+            this.Controls.Add(this.label14);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this.hitMissLabel);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.nextInstructionLabel);
             this.Controls.Add(this.instructionIndexLabel);
             this.Controls.Add(this.resetCPUButton);
@@ -493,6 +645,18 @@
         private System.Windows.Forms.Button resetCPUButton;
         private System.Windows.Forms.Label instructionIndexLabel;
         private System.Windows.Forms.Label nextInstructionLabel;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label hitMissLabel;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label hitCountLabel;
+        private System.Windows.Forms.Label missCountLabel;
+        private System.Windows.Forms.ComboBox cacheTypeDropdown;
+        private System.Windows.Forms.ComboBox cacheSizeDropdown;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.ComboBox blockSizeDropdown;
     }
 }
 

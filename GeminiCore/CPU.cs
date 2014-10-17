@@ -103,12 +103,12 @@ namespace GeminiCore
                         }
                         else
                         {
-                            ACC = mem.memory[operand];
+                            ACC = mem[operand];
                         }
                         PC++;
                         break;
                     case 2:
-                        mem.memory[operand] = ACC;
+                        mem[operand] = ACC;
                         PC++;
                         break;
                     case 3:
@@ -118,7 +118,7 @@ namespace GeminiCore
                         }
                         else
                         {
-                            ACC += mem.memory[operand];
+                            ACC += mem[operand];
                         }
                         PC++;
                         break;
@@ -129,7 +129,7 @@ namespace GeminiCore
                         }
                         else
                         {
-                            ACC -= mem.memory[operand];
+                            ACC -= mem[operand];
                         }
                         PC++;
                         break;
@@ -140,7 +140,7 @@ namespace GeminiCore
                         }
                         else
                         {
-                            ACC *= mem.memory[operand];
+                            ACC *= mem[operand];
                         }
                         PC++;
                         break;
@@ -151,7 +151,7 @@ namespace GeminiCore
                         }
                         else
                         {
-                            ACC /= mem.memory[operand];
+                            ACC /= mem[operand];
                         }
                         PC++;
                         break;
@@ -169,7 +169,7 @@ namespace GeminiCore
                         }
                         else
                         {
-                            if (ACC > 0 && mem.memory[operand] > 0)
+                            if (ACC > 0 && mem[operand] > 0)
                             {
                                 ACC = 1;
                             }
@@ -191,7 +191,7 @@ namespace GeminiCore
                                 ACC = 0;
                             }
                         else
-                            if (ACC > 0 || mem.memory[operand] > 0)
+                            if (ACC > 0 || mem[operand] > 0)
                             {
                                 ACC = 1;
                             }
@@ -275,6 +275,8 @@ namespace GeminiCore
             {
                 executeInstruction();
             }
+            Console.WriteLine("Hits: " + mem.hitCount);
+            Console.WriteLine("Misses: " + mem.missCount);
         }
 
         public string firstInstToString()

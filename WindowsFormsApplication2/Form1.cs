@@ -13,6 +13,7 @@ using System.Windows.Forms;
 
 using GeminiCore;
 
+
 namespace WindowsFormsApplication2
 {
     public partial class Form1 : Form
@@ -22,9 +23,14 @@ namespace WindowsFormsApplication2
 
         public Form1()
         {
+            
             myCPU = new CPU();
             myMem = new Memory();
-
+            myMem.cache = new GeminiCore.Memory.block[myMem.cacheSize];
+            for (int i = 0; i < myMem.cache.Length; i++)
+            {
+                myMem.cache[i].tag = -1;
+            }
             InitializeComponent();
         }
 
@@ -77,6 +83,28 @@ namespace WindowsFormsApplication2
             this.setCPUValuesToView();
         }
 
+        public int getCacheType()
+        {
+            if (this.cacheTypeDropdown.SelectedText == "2-Way Set Associative")
+            {
+                return 2;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+
+        public int getCacheSize()
+        {
+            return Convert.ToInt32(this.cacheSizeDropdown.SelectedText);
+        }
+
+        public int getBlockSize()
+        {
+            return Convert.ToInt32(this.blockSizeDropdown.SelectedText);
+        }
+
         public void setInitialCPUValuesToView()
         {
             this.aLabel.Text = "0x" + this.myCPU.A.ToString("x8");
@@ -92,6 +120,9 @@ namespace WindowsFormsApplication2
             this.ccLabel.Text = "0x" + this.myCPU.CC.ToString("x8");
             this.instructionIndexLabel.Text = this.myCPU.PC.ToString();
             this.nextInstructionLabel.Text = this.myCPU.firstInstToString();
+            this.hitMissLabel.Text = "- - -";
+            this.hitCountLabel.Text = this.myMem.hitCount.ToString();
+            this.missCountLabel.Text = this.myMem.missCount.ToString();
         }
 
         public void setCPUValuesToView()
@@ -109,6 +140,9 @@ namespace WindowsFormsApplication2
             this.ccLabel.Text = "0x" + this.myCPU.CC.ToString("x8");
             this.instructionIndexLabel.Text = this.myCPU.PC.ToString();
             this.nextInstructionLabel.Text = this.myCPU.nextInstToString();
+            this.hitMissLabel.Text = this.myMem.hitMiss;
+            this.hitCountLabel.Text = this.myMem.hitCount.ToString();
+            this.missCountLabel.Text = this.myMem.missCount.ToString();
         }
     }
 }
