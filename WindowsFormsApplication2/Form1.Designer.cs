@@ -75,6 +75,7 @@
             this.label16 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.blockSizeDropdown = new System.Windows.Forms.ComboBox();
+            this.applyCacheButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -425,7 +426,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(17, 317);
+            this.label3.Location = new System.Drawing.Point(16, 336);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(45, 15);
             this.label3.TabIndex = 35;
@@ -435,7 +436,7 @@
             // 
             this.hitMissLabel.AutoSize = true;
             this.hitMissLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hitMissLabel.Location = new System.Drawing.Point(122, 317);
+            this.hitMissLabel.Location = new System.Drawing.Point(121, 336);
             this.hitMissLabel.Name = "hitMissLabel";
             this.hitMissLabel.Size = new System.Drawing.Size(25, 15);
             this.hitMissLabel.TabIndex = 36;
@@ -445,7 +446,7 @@
             // 
             this.label13.AutoSize = true;
             this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.Location = new System.Drawing.Point(17, 334);
+            this.label13.Location = new System.Drawing.Point(16, 353);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(61, 15);
             this.label13.TabIndex = 37;
@@ -455,7 +456,7 @@
             // 
             this.label14.AutoSize = true;
             this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label14.Location = new System.Drawing.Point(17, 351);
+            this.label14.Location = new System.Drawing.Point(16, 370);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(79, 15);
             this.label14.TabIndex = 38;
@@ -465,7 +466,7 @@
             // 
             this.hitCountLabel.AutoSize = true;
             this.hitCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hitCountLabel.Location = new System.Drawing.Point(122, 334);
+            this.hitCountLabel.Location = new System.Drawing.Point(121, 353);
             this.hitCountLabel.Name = "hitCountLabel";
             this.hitCountLabel.Size = new System.Drawing.Size(14, 15);
             this.hitCountLabel.TabIndex = 39;
@@ -475,7 +476,7 @@
             // 
             this.missCountLabel.AutoSize = true;
             this.missCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.missCountLabel.Location = new System.Drawing.Point(122, 351);
+            this.missCountLabel.Location = new System.Drawing.Point(121, 370);
             this.missCountLabel.Name = "missCountLabel";
             this.missCountLabel.Size = new System.Drawing.Size(14, 15);
             this.missCountLabel.TabIndex = 40;
@@ -549,11 +550,22 @@
             this.blockSizeDropdown.Size = new System.Drawing.Size(121, 21);
             this.blockSizeDropdown.TabIndex = 46;
             // 
+            // applyCacheButton
+            // 
+            this.applyCacheButton.Location = new System.Drawing.Point(285, 394);
+            this.applyCacheButton.Name = "applyCacheButton";
+            this.applyCacheButton.Size = new System.Drawing.Size(121, 32);
+            this.applyCacheButton.TabIndex = 47;
+            this.applyCacheButton.Text = "Apply Cache Settings";
+            this.applyCacheButton.UseVisualStyleBackColor = true;
+            this.applyCacheButton.Click += new System.EventHandler(this.applyCacheButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(418, 395);
+            this.ClientSize = new System.Drawing.Size(418, 429);
+            this.Controls.Add(this.applyCacheButton);
             this.Controls.Add(this.blockSizeDropdown);
             this.Controls.Add(this.label17);
             this.Controls.Add(this.label16);
@@ -657,6 +669,7 @@
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.ComboBox blockSizeDropdown;
+        private System.Windows.Forms.Button applyCacheButton;
     }
 }
 

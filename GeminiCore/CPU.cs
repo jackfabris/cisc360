@@ -275,8 +275,9 @@ namespace GeminiCore
             {
                 executeInstruction();
             }
-            Console.WriteLine("Hits: " + mem.hitCount);
-            Console.WriteLine("Misses: " + mem.missCount);
+            Console.WriteLine("Cache Size: " + mem.cacheSize);
+            Console.WriteLine("Cache Type: " + mem.cacheType);
+            Console.WriteLine("Block Size: " + mem.blockSize);
         }
 
         public string firstInstToString()
