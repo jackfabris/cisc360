@@ -29,6 +29,39 @@ namespace WindowsFormsApplication2
             InitializeComponent();
         }
 
+        void myCPU_OnFetchDone(object sender, FetchEventArgs args)
+        {
+            MethodInvoker method = delegate 
+            {
+                Console.WriteLine("Fetch Done in GUI");
+                this.irLabel.Text = args.CurrentIR.ToString();
+            };
+
+            if (this.InvokeRequired)
+            {
+                this.Invoke(method);
+            }
+            else
+            {
+                method.Invoke();
+            }
+        }
+
+        void myCPU_OnDecodeDone(object sender, DecodeEventArgs args)
+        {
+
+        }
+
+        void myCPU_OnExecuteDone(object sender, ExecuteEventArgs args)
+        {
+
+        }
+
+        void myCPU_OnStoreDone(object sender, StoreEventArgs args)
+        {
+
+        }
+
         #region Events
         private void loadFileButton_Click(object sender, EventArgs e)
         {
