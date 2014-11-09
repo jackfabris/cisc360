@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GeminiCore
 {
-    class FetchEventArgs : EventArgs
+    public class FetchEventArgs : EventArgs
     {
         public int CurrentIR { get; set; }
 

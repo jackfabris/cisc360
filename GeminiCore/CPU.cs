@@ -56,6 +56,7 @@ namespace GeminiCore
         public struct decodeStruct
         {
             public int IR;
+            public int PC;
         }
 
         public struct executeStruct
@@ -64,6 +65,7 @@ namespace GeminiCore
             public ushort imm;
             public ushort operand;
             public int ACC;
+            public int PC;
         }
 
         public struct storeStruct
@@ -72,7 +74,13 @@ namespace GeminiCore
             public ushort imm;
             public ushort operand;
             public int tempACC;
+            public int PC;
         }
+
+        public int GUIfetch;
+        public int GUIdecode;
+        public int GUIexecute;
+        public int GUIstore;
 
         fetchStruct fetch = new fetchStruct();
         decodeStruct decode = new decodeStruct();
@@ -114,7 +122,11 @@ namespace GeminiCore
             CC = 0;
 
             fetch.PC = 0;
+            decode.PC = -1;
             execute.ACC = 0;
+            execute.PC = -1;
+            store.PC = -1;
+            
 
             fetchThread = new Thread(new ThreadStart(PerformFetch));
             fetchThread.Name = "Fetch Thread";
@@ -131,6 +143,11 @@ namespace GeminiCore
             storeThread = new Thread(new ThreadStart(PerformStore));
             storeThread.Name = "Store Thread";
             storeThread.Start();
+
+            GUIfetch = 0;
+            GUIdecode = 0;
+            GUIexecute = 0;
+            GUIstore = 0;
         }
 
         public void Dispose()
@@ -154,24 +171,19 @@ namespace GeminiCore
             while (!areWeDone)
             {
                 fetchEvent.WaitOne();
-                //IR++;
 
                 Console.WriteLine("In Fetch");
                 fetch.fetchIR = mem.Instructions[fetch.PC];
                 if (fetch.PC < mem.Instructions.Count - 1)
                 {
                     fetch.PC++;
+                    if (OnFetchDone != null)
+                    {
+                        OnFetchDone(this, new FetchEventArgs(this.IR));
+                    }
+                    decode.IR = fetch.fetchIR;
+                    decode.PC = fetch.PC;
                 }
-                else
-                {
-                    areWeDone = true;
-                }
-
-                if (OnFetchDone != null)
-                {
-                    OnFetchDone(this, new FetchEventArgs(this.IR));
-                }
-                decode.IR = fetch.fetchIR;
             }
         }
 
@@ -181,12 +193,16 @@ namespace GeminiCore
             {
                 decodeEvent.WaitOne();
 
-                execute.inst = (ushort)(decode.IR >> 9);
-                execute.imm = (ushort)((decode.IR & 256) >> 8);
-                ushort temp = (ushort)(decode.IR << 8);
-                execute.operand = (ushort)(temp >> 8);
+                if (decode.PC > -1 && decode.PC > mem.Instructions.Count - 1)
+                {
+                    Console.WriteLine("In Decode");
+                    execute.inst = (ushort)(decode.IR >> 9);
+                    execute.imm = (ushort)((decode.IR & 256) >> 8);
+                    ushort temp = (ushort)(decode.IR << 8);
+                    execute.operand = (ushort)(temp >> 8);
+                }
 
-                Console.WriteLine("In Decode");
+                execute.PC = decode.PC;
             }
         }
 
@@ -196,179 +212,184 @@ namespace GeminiCore
             {
                 executeEvent.WaitOne();
 
-                if (execute.imm == 0)
+                if (execute.PC > -1 && execute.PC > mem.Instructions.Count - 1)
                 {
-                    if (execute.operand > 255)
+                    Console.WriteLine("In Execute");
+                    if (execute.imm == 0)
                     {
-                        MessageBox.Show("Runtime error: segmentation fault at instruction " + PC,
-                            "Runtime Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        if (execute.operand > 255)
+                        {
+                            MessageBox.Show("Runtime error: segmentation fault at instruction " + PC,
+                                "Runtime Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                     }
-                }
 
-                switch (execute.inst)
-                {
-                    case 1:
-                        if (execute.imm == 1)
-                        {
-                            execute.ACC = execute.operand;
-                        }
-                        else
-                        {
-                            execute.ACC = mem[execute.operand];
-                        }
-                        break;
-                    case 2:
-                        break;
-                    case 3:
-                        if (execute.imm == 1)
-                        {
-                            execute.ACC += execute.operand;
-                        }
-                        else
-                        {
-                            execute.ACC += mem[execute.operand];
-                        }
-                        break;
-                    case 4:
-                        if (execute.imm == 1)
-                        {
-                            execute.ACC -= execute.operand;
-                        }
-                        else
-                        {
-                            execute.ACC -= mem[execute.operand];
-                        }
-                        break;
-                    case 5:
-                        if (execute.imm == 1)
-                        {
-                            execute.ACC *= execute.operand;
-                        }
-                        else
-                        {
-                            execute.ACC *= mem[execute.operand];
-                        }
-                        break;
-                    case 6:
-                        if (execute.imm == 1)
-                        {
-                            execute.ACC /= execute.operand;
-                        }
-                        else
-                        {
-                            execute.ACC /= mem[execute.operand];
-                        }
-                        break;
-                    case 7:
-                        if (execute.imm == 1)
-                        {
-                            if (execute.ACC > 0 && execute.operand > 0)
+                    switch (execute.inst)
+                    {
+                        case 1:
+                            if (execute.imm == 1)
                             {
-                                execute.ACC = 1;
+                                execute.ACC = execute.operand;
                             }
                             else
                             {
-                                execute.ACC = 0;
+                                execute.ACC = mem[execute.operand];
                             }
-                        }
-                        else
-                        {
-                            if (execute.ACC > 0 && mem[execute.operand] > 0)
+                            break;
+                        case 2:
+                            break;
+                        case 3:
+                            if (execute.imm == 1)
                             {
-                                execute.ACC = 1;
+                                execute.ACC += execute.operand;
                             }
                             else
                             {
-                                execute.ACC = 0;
+                                execute.ACC += mem[execute.operand];
                             }
-                        }
-                        break;
-                    case 8:
-                        if (execute.imm == 1)
-                            if (execute.ACC > 0 || execute.operand > 0)
+                            break;
+                        case 4:
+                            if (execute.imm == 1)
                             {
-                                execute.ACC = 1;
+                                execute.ACC -= execute.operand;
                             }
                             else
                             {
-                                execute.ACC = 0;
+                                execute.ACC -= mem[execute.operand];
                             }
-                        else
-                            if (execute.ACC > 0 || mem[execute.operand] > 0)
+                            break;
+                        case 5:
+                            if (execute.imm == 1)
                             {
-                                execute.ACC = 1;
+                                execute.ACC *= execute.operand;
                             }
                             else
                             {
-                                execute.ACC = 0;
+                                execute.ACC *= mem[execute.operand];
                             }
-                        break;
-                    case 9:
-                        execute.ACC = execute.ACC << execute.operand;
-                        break;
-                    case 10:
-                        if (execute.ACC > 0) execute.ACC = 0;
-                        else execute.ACC = 1;
-                        break;
-                    case 11:
-                        PC = execute.operand;
-                        break;
-                    case 12:
-                        if (CC == 0)
-                        {
+                            break;
+                        case 6:
+                            if (execute.imm == 1)
+                            {
+                                execute.ACC /= execute.operand;
+                            }
+                            else
+                            {
+                                execute.ACC /= mem[execute.operand];
+                            }
+                            break;
+                        case 7:
+                            if (execute.imm == 1)
+                            {
+                                if (execute.ACC > 0 && execute.operand > 0)
+                                {
+                                    execute.ACC = 1;
+                                }
+                                else
+                                {
+                                    execute.ACC = 0;
+                                }
+                            }
+                            else
+                            {
+                                if (execute.ACC > 0 && mem[execute.operand] > 0)
+                                {
+                                    execute.ACC = 1;
+                                }
+                                else
+                                {
+                                    execute.ACC = 0;
+                                }
+                            }
+                            break;
+                        case 8:
+                            if (execute.imm == 1)
+                                if (execute.ACC > 0 || execute.operand > 0)
+                                {
+                                    execute.ACC = 1;
+                                }
+                                else
+                                {
+                                    execute.ACC = 0;
+                                }
+                            else
+                                if (execute.ACC > 0 || mem[execute.operand] > 0)
+                                {
+                                    execute.ACC = 1;
+                                }
+                                else
+                                {
+                                    execute.ACC = 0;
+                                }
+                            break;
+                        case 9:
+                            execute.ACC = execute.ACC << execute.operand;
+                            break;
+                        case 10:
+                            if (execute.ACC > 0) execute.ACC = 0;
+                            else execute.ACC = 1;
+                            break;
+                        case 11:
                             PC = execute.operand;
-                        }
-                        else
-                        {
-                            //do nothing
-                        }
-                        break;
-                    case 13:
-                        if (CC == -1)
-                        {
-                            PC = execute.operand;
-                        }
-                        else
-                        {
-                            //do nothing
-                        }
-                        break;
-                    case 14:
-                        if (CC == 1)
-                        {
-                            PC = execute.operand;
-                        }
-                        else
-                        {
-                            //do nothing
-                        }
-                        break;
-                    case 15:
-                        execute.ACC += ZERO;
-                        break;
-                    case 16:
-                        PC = mem.Instructions.Count;
-                        break;
-                    default:
-                        break;
-                }
-                if (execute.ACC > 0)
-                {
-                    CC = 1;
-                }
-                else if (execute.ACC < 0)
-                {
-                    CC = -1;
-                }
-                else
-                {
-                    CC = 0;
+                            break;
+                        case 12:
+                            if (CC == 0)
+                            {
+                                PC = execute.operand;
+                            }
+                            else
+                            {
+                                //do nothing
+                            }
+                            break;
+                        case 13:
+                            if (CC == -1)
+                            {
+                                PC = execute.operand;
+                            }
+                            else
+                            {
+                                //do nothing
+                            }
+                            break;
+                        case 14:
+                            if (CC == 1)
+                            {
+                                PC = execute.operand;
+                            }
+                            else
+                            {
+                                //do nothing
+                            }
+                            break;
+                        case 15:
+                            execute.ACC += ZERO;
+                            break;
+                        case 16:
+                            PC = mem.Instructions.Count;
+                            break;
+                        default:
+                            break;
+                    }
+                    if (execute.ACC > 0)
+                    {
+                        CC = 1;
+                    }
+                    else if (execute.ACC < 0)
+                    {
+                        CC = -1;
+                    }
+                    else
+                    {
+                        CC = 0;
+                    }
                 }
 
                 store.inst = execute.inst;
                 store.imm = execute.imm;
                 store.operand = execute.operand;
                 store.tempACC = execute.ACC;
+                store.PC = execute.PC;
             }
         }
 
@@ -378,65 +399,14 @@ namespace GeminiCore
             {
                 storeEvent.WaitOne();
 
-                switch (store.inst)
+                if (store.PC > -1 && store.PC > mem.Instructions.Count - 1)
                 {
-                    case 1:
-                        if (store.imm == 1)
-                        {
-                            ACC = store.tempACC;
-                        }
-                        else
-                        {
-                            ACC = store.tempACC;
-                        }
-                        break;
-                    case 2:
-                        mem[store.operand] = store.tempACC;
-                        break;
-                    case 3:
-                        if (store.imm == 1)
-                        {
-                            ACC = store.tempACC;
-                        }
-                        else
-                        {
-                            ACC = store.tempACC;
-                        }
-                        break;
-                    case 4:
-                        if (store.imm == 1)
-                        {
-                            ACC = store.tempACC;
-                        }
-                        else
-                        {
-                            ACC = store.tempACC;
-                        }
-                        break;
-                    case 5:
-                        if (store.imm == 1)
-                        {
-                            ACC = store.tempACC;
-                        }
-                        else
-                        {
-                            ACC = store.tempACC;
-                        }
-                        break;
-                    case 6:
-                        if (store.imm == 1)
-                        {
-                            ACC = store.tempACC;
-                        }
-                        else
-                        {
-                            ACC = store.tempACC;
-                        }
-                        break;
-                    case 7:
-                        if (store.imm == 1)
-                        {
-                            if (store.tempACC > 0 && store.operand > 0)
+                    Console.WriteLine("In Store");
+
+                    switch (store.inst)
+                    {
+                        case 1:
+                            if (store.imm == 1)
                             {
                                 ACC = store.tempACC;
                             }
@@ -444,10 +414,12 @@ namespace GeminiCore
                             {
                                 ACC = store.tempACC;
                             }
-                        }
-                        else
-                        {
-                            if (store.tempACC > 0 && mem[store.operand] > 0)
+                            break;
+                        case 2:
+                            mem[store.operand] = store.tempACC;
+                            break;
+                        case 3:
+                            if (store.imm == 1)
                             {
                                 ACC = store.tempACC;
                             }
@@ -455,11 +427,9 @@ namespace GeminiCore
                             {
                                 ACC = store.tempACC;
                             }
-                        }
-                        break;
-                    case 8:
-                        if (store.imm == 1)
-                            if (store.tempACC > 0 || store.operand > 0)
+                            break;
+                        case 4:
+                            if (store.imm == 1)
                             {
                                 ACC = store.tempACC;
                             }
@@ -467,8 +437,9 @@ namespace GeminiCore
                             {
                                 ACC = store.tempACC;
                             }
-                        else
-                            if (ACC > 0 || mem[store.operand] > 0)
+                            break;
+                        case 5:
+                            if (store.imm == 1)
                             {
                                 ACC = store.tempACC;
                             }
@@ -476,72 +447,131 @@ namespace GeminiCore
                             {
                                 ACC = store.tempACC;
                             }
-                        break;
-                    case 9:
-                        ACC = store.tempACC;
-                        break;
-                    case 10:
-                        if (ACC > 0) ACC = store.tempACC;
-                        else ACC = store.tempACC;
-                        break;
-                    case 11:
-                        PC = store.tempACC;
-                        break;
-                    case 12:
-                        if (CC == 0)
-                        {
+                            break;
+                        case 6:
+                            if (store.imm == 1)
+                            {
+                                ACC = store.tempACC;
+                            }
+                            else
+                            {
+                                ACC = store.tempACC;
+                            }
+                            break;
+                        case 7:
+                            if (store.imm == 1)
+                            {
+                                if (store.tempACC > 0 && store.operand > 0)
+                                {
+                                    ACC = store.tempACC;
+                                }
+                                else
+                                {
+                                    ACC = store.tempACC;
+                                }
+                            }
+                            else
+                            {
+                                if (store.tempACC > 0 && mem[store.operand] > 0)
+                                {
+                                    ACC = store.tempACC;
+                                }
+                                else
+                                {
+                                    ACC = store.tempACC;
+                                }
+                            }
+                            break;
+                        case 8:
+                            if (store.imm == 1)
+                                if (store.tempACC > 0 || store.operand > 0)
+                                {
+                                    ACC = store.tempACC;
+                                }
+                                else
+                                {
+                                    ACC = store.tempACC;
+                                }
+                            else
+                                if (ACC > 0 || mem[store.operand] > 0)
+                                {
+                                    ACC = store.tempACC;
+                                }
+                                else
+                                {
+                                    ACC = store.tempACC;
+                                }
+                            break;
+                        case 9:
+                            ACC = store.tempACC;
+                            break;
+                        case 10:
+                            if (ACC > 0) ACC = store.tempACC;
+                            else ACC = store.tempACC;
+                            break;
+                        case 11:
                             PC = store.tempACC;
-                        }
-                        else
-                        {
-                            //do nothing
-                        }
-                        break;
-                    case 13:
-                        if (CC == -1)
-                        {
-                            PC = store.tempACC;
-                        }
-                        else
-                        {
-                            //do nothing
-                        }
-                        break;
-                    case 14:
-                        if (CC == 1)
-                        {
-                            PC = store.tempACC;
-                        }
-                        else
-                        {
-                            //do nothing
-                        }
-                        break;
-                    case 15:
-                        ACC = store.tempACC;
-                        break;
-                    case 16:
-                        PC = mem.Instructions.Count;
-                        break;
-                    default:
-                        break;
-                }
-                if (ACC > 0)
-                {
-                    CC = 1;
-                }
-                else if (ACC < 0)
-                {
-                    CC = -1;
+                            break;
+                        case 12:
+                            if (CC == 0)
+                            {
+                                PC = store.tempACC;
+                            }
+                            else
+                            {
+                                //do nothing
+                            }
+                            break;
+                        case 13:
+                            if (CC == -1)
+                            {
+                                PC = store.tempACC;
+                            }
+                            else
+                            {
+                                //do nothing
+                            }
+                            break;
+                        case 14:
+                            if (CC == 1)
+                            {
+                                PC = store.tempACC;
+                            }
+                            else
+                            {
+                                //do nothing
+                            }
+                            break;
+                        case 15:
+                            ACC = store.tempACC;
+                            break;
+                        case 16:
+                            PC = mem.Instructions.Count;
+                            break;
+                        default:
+                            break;
+                    }
+                    if (ACC > 0)
+                    {
+                        CC = 1;
+                    }
+                    else if (ACC < 0)
+                    {
+                        CC = -1;
+                    }
+                    else
+                    {
+                        CC = 0;
+                    }
                 }
                 else
                 {
-                    CC = 0;
+                    areWeDone = true;
                 }
             }
         }
 
-        public void nextInstruction()
+        public void executeInstruction()
         {
             fetchEvent.Set();
             decodeEvent.Set();
@@ -564,198 +594,199 @@ namespace GeminiCore
             CC = 0;
         }
 
-        public void executeInstruction()
-        {
-            if (PC < mem.Instructions.Count)
-            {
-                ushort inst = (ushort)(mem.Instructions[PC] >> 9);
-                ushort imm = (ushort)((mem.Instructions[PC] & 256) >> 8);
-                ushort temp = (ushort)(mem.Instructions[PC] << 8);
-                ushort operand = (ushort)(temp >> 8);
+        //public void executeInstruction()
+        //{
+        //    if (PC < mem.Instructions.Count)
+        //    {
+        //        ushort inst = (ushort)(mem.Instructions[PC] >> 9);
+        //        ushort imm = (ushort)((mem.Instructions[PC] & 256) >> 8);
+        //        ushort temp = (ushort)(mem.Instructions[PC] << 8);
+        //        ushort operand = (ushort)(temp >> 8);
 
-                if (imm == 0)
-                {
-                    if (operand > 255)
-                    {
-                        MessageBox.Show("Runtime error: segmentation fault at instruction " + PC, 
-                            "Runtime Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
+        //        if (imm == 0)
+        //        {
+        //            if (operand > 255)
+        //            {
+        //                MessageBox.Show("Runtime error: segmentation fault at instruction " + PC, 
+        //                    "Runtime Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //            }
+        //        }
 
-                switch (inst)
-                {
-                    case 1:
-                        if (imm == 1)
-                        {
-                            ACC = operand;
-                        }
-                        else
-                        {
-                            ACC = mem[operand];
-                        }
-                        PC++;
-                        break;
-                    case 2:
-                        mem[operand] = ACC;
-                        PC++;
-                        break;
-                    case 3:
-                        if (imm == 1)
-                        {
-                            ACC += operand;
-                        }
-                        else
-                        {
-                            ACC += mem[operand];
-                        }
-                        PC++;
-                        break;
-                    case 4:
-                        if (imm == 1)
-                        {
-                            ACC -= operand;
-                        }
-                        else
-                        {
-                            ACC -= mem[operand];
-                        }
-                        PC++;
-                        break;
-                    case 5:
-                        if (imm == 1)
-                        {
-                            ACC *= operand;
-                        }
-                        else
-                        {
-                            ACC *= mem[operand];
-                        }
-                        PC++;
-                        break;
-                    case 6:
-                        if (imm == 1)
-                        {
-                            ACC /= operand;
-                        }
-                        else
-                        {
-                            ACC /= mem[operand];
-                        }
-                        PC++;
-                        break;
-                    case 7:
-                        if (imm == 1)
-                        {
-                            if (ACC > 0 && operand > 0)
-                            {
-                                ACC = 1;
-                            }
-                            else
-                            {
-                                ACC = 0;
-                            }
-                        }
-                        else
-                        {
-                            if (ACC > 0 && mem[operand] > 0)
-                            {
-                                ACC = 1;
-                            }
-                            else
-                            {
-                                ACC = 0;
-                            }
-                        }
-                        PC++;
-                        break;
-                    case 8:
-                        if (imm == 1)
-                            if (ACC > 0 || operand > 0)
-                            {
-                                ACC = 1;
-                            }
-                            else
-                            {
-                                ACC = 0;
-                            }
-                        else
-                            if (ACC > 0 || mem[operand] > 0)
-                            {
-                                ACC = 1;
-                            }
-                            else
-                            {
-                                ACC = 0;
-                            }
-                        PC++;
-                        break;
-                    case 9:
-                        ACC = ACC << operand;
-                        PC++;
-                        break;
-                    case 10:
-                        if (ACC > 0) ACC = 0;
-                        else ACC = 1;
-                        PC++;
-                        break;
-                    case 11:
-                        PC = operand;
-                        break;
-                    case 12:
-                        if (CC == 0)
-                        {
-                            PC = operand;
-                        }
-                        else
-                        {
-                            PC++;
-                        }
-                        break;
-                    case 13:
-                        if (CC == -1)
-                        {
-                            PC = operand;
-                        }
-                        else
-                        {
-                            PC++;
-                        }
-                        break;
-                    case 14:
-                        if (CC == 1)
-                        {
-                            PC = operand;
-                        }
-                        else
-                        {
-                            PC++;
-                        }
-                        break;
-                    case 15:
-                        ACC += ZERO;
-                        PC++;
-                        break;
-                    case 16:
-                        PC = mem.Instructions.Count;
-                        PC++;
-                        break;
-                    default:
-                        break;
-                }
-                if (ACC > 0)
-                {
-                    CC = 1;
-                }
-                else if (ACC < 0)
-                {
-                    CC = -1;
-                }
-                else
-                {
-                    CC = 0;
-                }
-            }
-        }
+        //        switch (inst)
+        //        {
+        //            case 1:
+        //                if (imm == 1)
+        //                {
+        //                    ACC = operand;
+        //                }
+        //                else
+        //                {
+        //                    ACC = mem[operand];
+        //                }
+        //                PC++;
+        //                break;
+        //            case 2:
+        //                mem[operand] = ACC;
+        //                PC++;
+        //                break;
+        //            case 3:
+        //                if (imm == 1)
+        //                {
+        //                    ACC += operand;
+        //                }
+        //                else
+        //                {
+        //                    ACC += mem[operand];
+        //                }
+        //                PC++;
+        //                break;
+        //            case 4:
+        //                if (imm == 1)
+        //                {
+        //                    ACC -= operand;
+        //                }
+        //                else
+        //                {
+        //                    ACC -= mem[operand];
+        //                }
+        //                PC++;
+        //                break;
+        //            case 5:
+        //                if (imm == 1)
+        //                {
+        //                    ACC *= operand;
+        //                }
+        //                else
+        //                {
+        //                    ACC *= mem[operand];
+        //                }
+        //                PC++;
+        //                break;
+        //            case 6:
+        //                if (imm == 1)
+        //                {
+        //                    ACC /= operand;
+        //                }
+        //                else
+        //                {
+        //                    ACC /= mem[operand];
+        //                }
+        //                PC++;
+        //                break;
+        //            case 7:
+        //                if (imm == 1)
+        //                {
+        //                    if (ACC > 0 && operand > 0)
+        //                    {
+        //                        ACC = 1;
+        //                    }
+        //                    else
+        //                    {
+        //                        ACC = 0;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    if (ACC > 0 && mem[operand] > 0)
+        //                    {
+        //                        ACC = 1;
+        //                    }
+        //                    else
+        //                    {
+        //                        ACC = 0;
+        //                    }
+        //                }
+        //                PC++;
+        //                break;
+        //            case 8:
+        //                if (imm == 1)
+        //                    if (ACC > 0 || operand > 0)
+        //                    {
+        //                        ACC = 1;
+        //                    }
+        //                    else
+        //                    {
+        //                        ACC = 0;
+        //                    }
+        //                else
+        //                    if (ACC > 0 || mem[operand] > 0)
+        //                    {
+        //                        ACC = 1;
+        //                    }
+        //                    else
+        //                    {
+        //                        ACC = 0;
+        //                    }
+        //                PC++;
+        //                break;
+        //            case 9:
+        //                ACC = ACC << operand;
+        //                PC++;
+        //                break;
+        //            case 10:
+        //                if (ACC > 0) ACC = 0;
+        //                else ACC = 1;
+        //                PC++;
+        //                break;
+        //            case 11:
+        //                PC = operand;
+        //                break;
+        //            case 12:
+        //                if (CC == 0)
+        //                {
+        //                    PC = operand;
+        //                }
+        //                else
+        //                {
+        //                    PC++;
+        //                }
+        //                break;
+        //            case 13:
+        //                if (CC == -1)
+        //                {
+        //                    PC = operand;
+        //                }
+        //                else
+        //                {
+        //                    PC++;
+        //                }
+        //                break;
+        //            case 14:
+        //                if (CC == 1)
+        //                {
+        //                    PC = operand;
+        //                }
+        //                else
+        //                {
+        //                    PC++;
+        //                }
+        //                break;
+        //            case 15:
+        //                ACC += ZERO;
+        //                PC++;
+        //                break;
+        //            case 16:
+        //                PC = mem.Instructions.Count;
+        //                PC++;
+        //                break;
+        //            default:
+        //                break;
+        //        }
+        //        if (ACC > 0)
+        //        {
+        //            CC = 1;
+        //        }
+        //        else if (ACC < 0)
+        //        {
+        //            CC = -1;
+        //        }
+        //        else
+        //        {
+        //            CC = 0;
+        //        }
+        //    }
+        //}
+
 
         public void executeAllInstructions()
         {
@@ -789,6 +820,18 @@ namespace GeminiCore
                 return "No Instructions";
             }
             return "No Instructions";
+        }
+
+        public string instToString(int ir)
+        {
+            string instruction = "";
+            ushort inst = (ushort)(ir >> 9);
+            ushort imm = (ushort)((ir & 256) >> 8);
+            ushort temp = (ushort)(ir << 8);
+            ushort operand = (ushort)(temp >> 8);
+
+            instruction = instBinary[inst] + " " + imm + " " + operand;
+            return instruction;
         }
 
         public string nextInstToString()

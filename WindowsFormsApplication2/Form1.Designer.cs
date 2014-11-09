@@ -76,6 +76,14 @@
             this.label17 = new System.Windows.Forms.Label();
             this.blockSizeDropdown = new System.Windows.Forms.ComboBox();
             this.applyCacheButton = new System.Windows.Forms.Button();
+            this.label18 = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.storeLabel = new System.Windows.Forms.Label();
+            this.executeLabel = new System.Windows.Forms.Label();
+            this.decodeLabel = new System.Windows.Forms.Label();
+            this.fetchLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -560,11 +568,99 @@
             this.applyCacheButton.UseVisualStyleBackColor = true;
             this.applyCacheButton.Click += new System.EventHandler(this.applyCacheButton_Click);
             // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label18.Location = new System.Drawing.Point(16, 446);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(40, 15);
+            this.label18.TabIndex = 48;
+            this.label18.Text = "Fetch:";
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label19.Location = new System.Drawing.Point(16, 431);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(53, 15);
+            this.label19.TabIndex = 49;
+            this.label19.Text = "Decode:";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label20.Location = new System.Drawing.Point(16, 416);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(54, 15);
+            this.label20.TabIndex = 50;
+            this.label20.Text = "Execute:";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label21.Location = new System.Drawing.Point(16, 401);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(39, 15);
+            this.label21.TabIndex = 51;
+            this.label21.Text = "Store:";
+            // 
+            // storeLabel
+            // 
+            this.storeLabel.AutoSize = true;
+            this.storeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.storeLabel.Location = new System.Drawing.Point(124, 401);
+            this.storeLabel.Name = "storeLabel";
+            this.storeLabel.Size = new System.Drawing.Size(25, 15);
+            this.storeLabel.TabIndex = 52;
+            this.storeLabel.Text = "- - -";
+            // 
+            // executeLabel
+            // 
+            this.executeLabel.AutoSize = true;
+            this.executeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.executeLabel.Location = new System.Drawing.Point(124, 416);
+            this.executeLabel.Name = "executeLabel";
+            this.executeLabel.Size = new System.Drawing.Size(25, 15);
+            this.executeLabel.TabIndex = 53;
+            this.executeLabel.Text = "- - -";
+            // 
+            // decodeLabel
+            // 
+            this.decodeLabel.AutoSize = true;
+            this.decodeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.decodeLabel.Location = new System.Drawing.Point(124, 431);
+            this.decodeLabel.Name = "decodeLabel";
+            this.decodeLabel.Size = new System.Drawing.Size(25, 15);
+            this.decodeLabel.TabIndex = 54;
+            this.decodeLabel.Text = "- - -";
+            // 
+            // fetchLabel
+            // 
+            this.fetchLabel.AutoSize = true;
+            this.fetchLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.fetchLabel.Location = new System.Drawing.Point(124, 446);
+            this.fetchLabel.Name = "fetchLabel";
+            this.fetchLabel.Size = new System.Drawing.Size(25, 15);
+            this.fetchLabel.TabIndex = 55;
+            this.fetchLabel.Text = "- - -";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(418, 429);
+            this.ClientSize = new System.Drawing.Size(418, 483);
+            this.Controls.Add(this.fetchLabel);
+            this.Controls.Add(this.decodeLabel);
+            this.Controls.Add(this.executeLabel);
+            this.Controls.Add(this.storeLabel);
+            this.Controls.Add(this.label21);
+            this.Controls.Add(this.label20);
+            this.Controls.Add(this.label19);
+            this.Controls.Add(this.label18);
             this.Controls.Add(this.applyCacheButton);
             this.Controls.Add(this.blockSizeDropdown);
             this.Controls.Add(this.label17);
@@ -670,6 +766,14 @@
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.ComboBox blockSizeDropdown;
         private System.Windows.Forms.Button applyCacheButton;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.Label storeLabel;
+        private System.Windows.Forms.Label executeLabel;
+        private System.Windows.Forms.Label decodeLabel;
+        private System.Windows.Forms.Label fetchLabel;
     }
 }
 

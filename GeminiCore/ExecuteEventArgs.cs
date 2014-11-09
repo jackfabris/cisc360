@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace GeminiCore
 {
-    class ExecuteEventArgs
+    public class ExecuteEventArgs
     {
+        public int CurrentIR { get; set; }
+
+        public ExecuteEventArgs(int ir)
+        {
+            CurrentIR = ir;
+        }
     }
 }

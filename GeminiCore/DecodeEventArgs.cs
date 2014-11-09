@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace GeminiCore
 {
-    class DecodeEventArgs
+    public class DecodeEventArgs
     {
+        public int CurrentIR { get; set; }
+
+        public DecodeEventArgs(int ir)
+        {
+            CurrentIR = ir;
+        }
     }
 }

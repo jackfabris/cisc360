@@ -35,6 +35,7 @@ namespace WindowsFormsApplication2
             {
                 Console.WriteLine("Fetch Done in GUI");
                 this.irLabel.Text = args.CurrentIR.ToString();
+                this.fetchLabel.Text = myCPU.instToString(args.CurrentIR);
             };
 
             if (this.InvokeRequired)
@@ -49,17 +50,56 @@ namespace WindowsFormsApplication2
 
         void myCPU_OnDecodeDone(object sender, DecodeEventArgs args)
         {
+            MethodInvoker method = delegate
+            {
+                Console.WriteLine("Decode Done in GUI");
+                this.decodeLabel.Text = myCPU.instToString(args.CurrentIR);
+            };
 
+            if (this.InvokeRequired)
+            {
+                this.Invoke(method);
+            }
+            else
+            {
+                method.Invoke();
+            }
         }
 
         void myCPU_OnExecuteDone(object sender, ExecuteEventArgs args)
         {
+            MethodInvoker method = delegate
+            {
+                Console.WriteLine("Execute Done in GUI");
+                this.executeLabel.Text = myCPU.instToString(args.CurrentIR);
+            };
 
+            if (this.InvokeRequired)
+            {
+                this.Invoke(method);
+            }
+            else
+            {
+                method.Invoke();
+            }
         }
 
         void myCPU_OnStoreDone(object sender, StoreEventArgs args)
         {
+            MethodInvoker method = delegate
+            {
+                Console.WriteLine("Store Done in GUI");
+                this.storeLabel.Text = myCPU.instToString(args.CurrentIR);
+            };
 
+            if (this.InvokeRequired)
+            {
+                this.Invoke(method);
+            }
+            else
+            {
+                method.Invoke();
+            }
         }
 
         #region Events
@@ -129,6 +169,10 @@ namespace WindowsFormsApplication2
             this.hitMissLabel.Text = "- - -";
             this.hitCountLabel.Text = this.myMem.hitCount.ToString();
             this.missCountLabel.Text = this.myMem.missCount.ToString();
+            this.fetchLabel.Text = "- - -";
+            this.decodeLabel.Text = "- - -";
+            this.executeLabel.Text = "- - -";
+            this.storeLabel.Text = "- - -";
         }
 
         public void setCPUValuesToView()
