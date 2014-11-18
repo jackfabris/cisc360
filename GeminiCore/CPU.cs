@@ -45,7 +45,13 @@ namespace GeminiCore
         public delegate void StoreDone(object sender, StoreEventArgs args);
         public event StoreDone OnStoreDone;
 
+        public delegate void ProgramDone(object sender, ProgramEventArgs args);
+        public event ProgramDone OnProgramDone;
+
         bool areWeDone = false;
+        bool branchTaken = false;
+        bool branchTakenBefore = false;
+        bool loadInst = false;
 
         public struct fetchStruct
         {
@@ -61,6 +67,7 @@ namespace GeminiCore
 
         public struct executeStruct
         {
+            public int IR;
             public ushort inst;
             public ushort imm;
             public ushort operand;
@@ -70,6 +77,7 @@ namespace GeminiCore
 
         public struct storeStruct
         {
+            public int IR;
             public ushort inst;
             public ushort imm;
             public ushort operand;
@@ -168,53 +176,63 @@ namespace GeminiCore
 
         private void PerformFetch()
         {
-            while (!areWeDone)
+            while (true)
             {
+                if (areWeDone)
+                {
+                    break;
+                }
                 fetchEvent.WaitOne();
 
-                Console.WriteLine("In Fetch");
                 fetch.fetchIR = mem.Instructions[fetch.PC];
                 if (fetch.PC < mem.Instructions.Count - 1)
                 {
                     fetch.PC++;
                     if (OnFetchDone != null)
                     {
-                        OnFetchDone(this, new FetchEventArgs(this.IR));
+                        OnFetchDone(this, new FetchEventArgs(fetch.fetchIR));
                     }
-                    decode.IR = fetch.fetchIR;
-                    decode.PC = fetch.PC;
                 }
             }
         }
 
         public void PerformDecode()
         {
-            while (!areWeDone)
+            while (true)
             {
+                if (areWeDone)
+                {
+                    break;
+                }
                 decodeEvent.WaitOne();
 
-                if (decode.PC > -1 && decode.PC > mem.Instructions.Count - 1)
+                if (decode.IR > -1 && decode.PC > -1 && decode.PC < mem.Instructions.Count)
                 {
-                    Console.WriteLine("In Decode");
                     execute.inst = (ushort)(decode.IR >> 9);
                     execute.imm = (ushort)((decode.IR & 256) >> 8);
                     ushort temp = (ushort)(decode.IR << 8);
                     execute.operand = (ushort)(temp >> 8);
-                }
 
-                execute.PC = decode.PC;
+                    if (OnDecodeDone != null)
+                    {
+                        OnDecodeDone(this, new DecodeEventArgs(decode.IR));
+                    }
+                }
             }
         }
 
         public void PerformExecute()
         {
-            while (!areWeDone)
+            while (true)
             {
+                if (areWeDone)
+                {
+                    break;
+                }
                 executeEvent.WaitOne();
 
-                if (execute.PC > -1 && execute.PC > mem.Instructions.Count - 1)
+                if (execute.PC > -1 && execute.PC < mem.Instructions.Count)
                 {
-                    Console.WriteLine("In Execute");
                     if (execute.imm == 0)
                     {
                         if (execute.operand > 255)
@@ -230,10 +248,12 @@ namespace GeminiCore
                             if (execute.imm == 1)
                             {
                                 execute.ACC = execute.operand;
+                                loadInst = true;
                             }
                             else
                             {
                                 execute.ACC = mem[execute.operand];
+                                loadInst = true;
                             }
                             break;
                         case 2:
@@ -329,33 +349,37 @@ namespace GeminiCore
                             if (execute.ACC > 0) execute.ACC = 0;
                             else execute.ACC = 1;
                             break;
-                        case 11:
+                        case 11: // ba
                             PC = execute.operand;
+                            branchTaken = true;
                             break;
-                        case 12:
+                        case 12: // be
                             if (CC == 0)
                             {
                                 PC = execute.operand;
+                                branchTaken = true;
                             }
                             else
                             {
                                 //do nothing
                             }
                             break;
-                        case 13:
+                        case 13: // bl
                             if (CC == -1)
                             {
                                 PC = execute.operand;
+                                branchTaken = true;
                             }
                             else
                             {
                                 //do nothing
                             }
                             break;
-                        case 14:
+                        case 14: // bg
                             if (CC == 1)
                             {
                                 PC = execute.operand;
+                                branchTaken = true;
                             }
                             else
                             {
@@ -383,26 +407,26 @@ namespace GeminiCore
                     {
                         CC = 0;
                     }
+                    if (OnExecuteDone != null)
+                    {
+                        OnExecuteDone(this, new ExecuteEventArgs(execute.IR));
+                    }
                 }
-
-                store.inst = execute.inst;
-                store.imm = execute.imm;
-                store.operand = execute.operand;
-                store.tempACC = execute.ACC;
-                store.PC = execute.PC;
             }
         }
 
         public void PerformStore()
         {
-            while (!areWeDone)
+            while (true)
             {
-                storeEvent.WaitOne();
-
-                if (store.PC > -1 && store.PC > mem.Instructions.Count - 1)
+                //Console.WriteLine("store pc: " + store.PC);
+                if (areWeDone)
                 {
-                    Console.WriteLine("In Store");
-
+                    break;
+                }
+                storeEvent.WaitOne();
+                if (store.PC > -1 && store.PC < mem.Instructions.Count)
+                {
                     switch (store.inst)
                     {
                         case 1:
@@ -564,19 +588,79 @@ namespace GeminiCore
                         CC = 0;
                     }
                 }
-                else
+                if (OnStoreDone != null)
                 {
-                    areWeDone = true;
+                    OnStoreDone(this, new StoreEventArgs(store.IR));
+                }
+                else if (store.PC == mem.Instructions.Count)
+                {
+                    Console.WriteLine("about to dispose");
+                    Dispose();
+                    Console.WriteLine("disposed");
+                    if (OnProgramDone != null)
+                    {
+                        OnProgramDone(this, new ProgramEventArgs());
+                        Console.WriteLine("on program done called");
+                    }
                 }
             }
         }
 
         public void executeInstruction()
         {
-            fetchEvent.Set();
-            decodeEvent.Set();
-            executeEvent.Set();
-            storeEvent.Set();
+            if (loadInst)
+            {
+                // wait one cycle on load
+                Console.WriteLine("load wait");
+                loadInst = false;
+            }
+            else if (branchTaken)
+            {
+                fetch.PC = PC;
+                Console.WriteLine("fetch PC: " + fetch.PC);
+                decode.PC = -1;
+                execute.PC = -1;
+
+                decode.IR = -1;
+
+                store.inst = execute.inst;
+                store.imm = execute.imm;
+                store.operand = execute.operand;
+                store.tempACC = execute.ACC;
+                store.PC = execute.PC;
+
+                branchTaken = false;
+                branchTakenBefore = true;
+            }
+            else
+            {
+                if (!branchTakenBefore)
+                {
+                    //IR
+                    store.IR = execute.IR;
+                    execute.IR = decode.IR;
+                    decode.IR = fetch.fetchIR;
+
+                    //fetch
+                    decode.PC = fetch.PC;
+
+                    //decode
+                    execute.PC = decode.PC;
+
+                    //execute
+                    store.inst = execute.inst;
+                    store.imm = execute.imm;
+                    store.operand = execute.operand;
+                    store.tempACC = execute.ACC;
+                    store.PC = execute.PC;
+                }
+                branchTakenBefore = false;
+
+                fetchEvent.Set();
+                decodeEvent.Set();
+                executeEvent.Set();
+                storeEvent.Set();
+            }
         }
 
         public void resetCPU()
@@ -830,7 +914,15 @@ namespace GeminiCore
             ushort temp = (ushort)(ir << 8);
             ushort operand = (ushort)(temp >> 8);
 
-            instruction = instBinary[inst] + " " + imm + " " + operand;
+
+            if (instBinary.ContainsKey(inst))
+            {
+                instruction = instBinary[inst] + " " + imm + " " + operand;
+            }
+            else
+            {
+                instruction = "Instruction not found";
+            }
             return instruction;
         }
 

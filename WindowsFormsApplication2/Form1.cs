@@ -26,6 +26,11 @@ namespace WindowsFormsApplication2
             
             myCPU = new CPU();
             myMem = new Memory();
+            myCPU.OnFetchDone += myCPU_OnFetchDone;
+            myCPU.OnDecodeDone += myCPU_OnDecodeDone;
+            myCPU.OnExecuteDone += myCPU_OnExecuteDone;
+            myCPU.OnStoreDone += myCPU_OnStoreDone;
+            myCPU.OnProgramDone += myCPU_OnProgramDone;
             InitializeComponent();
         }
 
@@ -101,6 +106,29 @@ namespace WindowsFormsApplication2
                 method.Invoke();
             }
         }
+
+        void myCPU_OnProgramDone(object sender, ProgramEventArgs args)
+        {
+            MethodInvoker method = delegate
+            {
+                this.fetchLabel.Text = "- - -";
+                this.decodeLabel.Text = "- - -";
+                this.executeLabel.Text = "- - -";
+                this.storeLabel.Text = "- - -";
+                this.nextInstructionLabel.Text = "End of program";
+
+            };
+
+            if (this.InvokeRequired)
+            {
+                this.Invoke(method);
+            }
+            else
+            {
+                method.Invoke();
+            }
+        }
+
 
         #region Events
         private void loadFileButton_Click(object sender, EventArgs e)
