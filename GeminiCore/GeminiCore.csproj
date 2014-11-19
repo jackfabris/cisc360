@@ -46,6 +46,7 @@
     <Compile Include="FetchEventArgs.cs" />
     <Compile Include="IPE.cs" />
     <Compile Include="Memory.cs" />
+    <Compile Include="OperationEventArgs.cs" />
     <Compile Include="ProgramEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StoreEventArgs.cs" />
