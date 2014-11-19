@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace GeminiCore
 {
@@ -60,8 +61,9 @@ namespace GeminiCore
 
         bool areWeDone = false;
         bool branchTaken = false;
-        bool branchTakenBefore = false;
         bool loadInst = false;
+        bool mulDivInst = false;
+        int mulDivCount = 0;
 
         public struct fetchStruct
         {
@@ -94,6 +96,19 @@ namespace GeminiCore
             public int tempACC;
             public int PC;
         }
+
+        public struct branchPredictionStruct
+        {
+            public int branchPC;
+            public int targetPC;
+            public int timesTaken = 0;
+            public int timesNotTaken = 0;
+            public bool taken = false;
+            public bool predictTaken = false;
+        }
+
+        public List<branchPredictionStruct> branchPredictionTable = new List<branchPredictionStruct>();
+        public bool predictionHit;
 
         public int GUIfetch;
         public int GUIdecode;
@@ -392,14 +407,53 @@ namespace GeminiCore
                                 branchTaken = true;
                                 break;
                             case 12: // be
+                                branchPredictionStruct b = branchPredictionTable[execute.PC];
+                                if (b.Equals(null))
+                                {
+                                    b = new branchPredictionStruct();
+                                    b.branchPC = execute.PC;
+                                    b.targetPC = execute.operand;
+                                }
+                                if (b.timesTaken >= 2)
+                                {
+                                    b.predictTaken = true;
+                                }
+                                else if (b.timesNotTaken >= 2)
+                                {
+                                    b.predictTaken = false;
+                                }
                                 if (CC == 0)
                                 {
-                                    PC = execute.operand;
-                                    branchTaken = true;
+                                    if (b.predictTaken)
+                                    {
+                                        predictionHit = true;
+                                        PC = b.targetPC;
+                                    }
+                                    else
+                                    {
+                                        predictionHit = false;
+                                    }
+                                    b.taken = true;
+                                    b.timesTaken++;
+                                    b.timesNotTaken = 0;
+                                    branchPredictionTable[execute.PC] = b;
+                                    //branchTaken = true;
                                 }
                                 else
                                 {
-                                    //do nothing
+
+                                    if (b.predictTaken)
+                                    {
+                                        predictionHit = false;
+                                    }
+                                    else
+                                    {
+                                        predictionHit = true;
+                                    }
+                                    b.taken = false;
+                                    b.timesTaken = 0;
+                                    b.timesNotTaken++;
+                                    branchPredictionTable[execute.PC] = b;
                                 }
                                 break;
                             case 13: // bl
@@ -646,30 +700,35 @@ namespace GeminiCore
 
         public void executeInstruction()
         {
+            Console.WriteLine("execute called");
             fetchDone = false;
             decodeDone = false;
             executeDone = false;
             storeDone = false;
 
-            fetchRuns = false;
-            decodeRuns = false;
-            executeRuns = false;
-            storeRuns = false;
-
-            fetchEvent.Set();
-            decodeEvent.Set();
-            executeEvent.Set();
-            storeEvent.Set();
-
-            allThreadsDone.WaitOne();
+            //fetchRuns = false;
+            //decodeRuns = false;
+            //executeRuns = false;
+            //storeRuns = false;
 
             if (loadInst)
             {
-                // wait one cycle on load
-                Console.WriteLine("load wait");
                 loadInst = false;
             }
-            else if (branchTaken)
+            else if (mulDivInst)
+            {
+                if (mulDivCount == 4)
+                {
+                    mulDivCount = 0;
+                    mulDivInst = false;
+                }
+                else
+                {
+                    mulDivCount++;
+                }
+
+            }
+            else if (!predictionHit)
             {
                 fetch.PC = PC;
                 Console.WriteLine("fetch PC: " + fetch.PC);
@@ -685,33 +744,77 @@ namespace GeminiCore
                 store.PC = execute.PC;
 
                 branchTaken = false;
-                branchTakenBefore = true;
             }
             else
             {
-                if (!branchTakenBefore)
-                {
-                    //IR
-                    store.IR = execute.IR;
-                    execute.IR = decode.IR;
-                    decode.IR = fetch.fetchIR;
+                //check if branch was taken, if so transfer btwn threads
 
-                    //fetch
-                    decode.PC = fetch.PC;
 
-                    //decode
-                    execute.PC = decode.PC;
+                fetchEvent.Set();
+                decodeEvent.Set();
+                executeEvent.Set();
+                storeEvent.Set();
 
-                    //execute
-                    store.inst = execute.inst;
-                    store.imm = execute.imm;
-                    store.operand = execute.operand;
-                    store.tempACC = execute.ACC;
-                    store.PC = execute.PC;
-                }
-                branchTakenBefore = false;
+                Console.WriteLine("Set");
+
+                allThreadsDone.WaitOne();
+
+                //IR
+                store.IR = execute.IR;
+                execute.IR = decode.IR;
+                decode.IR = fetch.fetchIR;
+
+                //fetch
+                decode.PC = fetch.PC;
+
+                //decode
+                execute.PC = decode.PC;
+
+                //execute
+                store.inst = execute.inst;
+                store.imm = execute.imm;
+                store.operand = execute.operand;
+                store.tempACC = execute.ACC;
+                store.PC = execute.PC;
             }
+
+            Console.WriteLine("done");
+            Console.WriteLine("ACC: " + ACC);
+            Console.WriteLine("PC: " + PC);
+
         }
+
+        //if (loadInst)
+        //{
+        //    // wait one cycle on load
+        //    Console.WriteLine("load wait");
+        //    loadInst = false;
+        //}
+        //else if (branchTaken)
+        //{
+        //    fetch.PC = PC;
+        //    Console.WriteLine("fetch PC: " + fetch.PC);
+        //    decode.PC = -1;
+        //    execute.PC = -1;
+
+        //    decode.IR = 0;
+
+        //    store.inst = execute.inst;
+        //    store.imm = execute.imm;
+        //    store.operand = execute.operand;
+        //    store.tempACC = execute.ACC;
+        //    store.PC = execute.PC;
+
+        //    branchTaken = false;
+        //    branchTakenBefore = true;
+        //}
+        //else
+        //{
+        //    if (!branchTakenBefore)
+        //    {
+        //    }
+        //    branchTakenBefore = false;
+        //}
 
         public void resetCPU()
         {

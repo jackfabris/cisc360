@@ -34,7 +34,7 @@ namespace WindowsFormsApplication2
             InitializeComponent();
         }
 
-        void myCPU_OnFetchDone(object sender, FetchEventArgs args)
+        void myCPU_OnFetchDone(object sender, OperationEventArgs args)
         {
             MethodInvoker method = delegate 
             {
@@ -53,7 +53,7 @@ namespace WindowsFormsApplication2
             }
         }
 
-        void myCPU_OnDecodeDone(object sender, DecodeEventArgs args)
+        void myCPU_OnDecodeDone(object sender, OperationEventArgs args)
         {
             MethodInvoker method = delegate
             {
@@ -71,7 +71,7 @@ namespace WindowsFormsApplication2
             }
         }
 
-        void myCPU_OnExecuteDone(object sender, ExecuteEventArgs args)
+        void myCPU_OnExecuteDone(object sender, OperationEventArgs args)
         {
             MethodInvoker method = delegate
             {
@@ -89,7 +89,7 @@ namespace WindowsFormsApplication2
             }
         }
 
-        void myCPU_OnStoreDone(object sender, StoreEventArgs args)
+        void myCPU_OnStoreDone(object sender, OperationEventArgs args)
         {
             MethodInvoker method = delegate
             {

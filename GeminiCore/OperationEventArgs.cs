@@ -16,7 +16,7 @@ namespace GeminiCore
 
     public class OperationEventArgs : EventArgs
     {
-        public short CurrentIR { get; set; }
+        public ushort CurrentIR { get; set; }
         public ThreadType CurrentThreadType { get; set; }
 
         public OperationEventArgs(ThreadType type, ushort ir)
