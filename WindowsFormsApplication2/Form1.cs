@@ -22,15 +22,13 @@ namespace WindowsFormsApplication2
         public Memory myMem;
 
         public Form1()
-        {
-            
-            myCPU = new CPU();
+        { 
             myMem = new Memory();
+            myCPU = new CPU();
             myCPU.OnFetchDone += myCPU_OnFetchDone;
             myCPU.OnDecodeDone += myCPU_OnDecodeDone;
             myCPU.OnExecuteDone += myCPU_OnExecuteDone;
             myCPU.OnStoreDone += myCPU_OnStoreDone;
-            myCPU.OnProgramDone += myCPU_OnProgramDone;
             InitializeComponent();
         }
 
@@ -38,8 +36,7 @@ namespace WindowsFormsApplication2
         {
             MethodInvoker method = delegate 
             {
-                Console.WriteLine("Fetch Done in GUI");
-                this.irLabel.Text = args.CurrentIR.ToString();
+                this.irLabel.Text = "0x" + args.CurrentIR.ToString("x8");
                 this.fetchLabel.Text = myCPU.instToString(args.CurrentIR);
             };
 
@@ -57,7 +54,6 @@ namespace WindowsFormsApplication2
         {
             MethodInvoker method = delegate
             {
-                Console.WriteLine("Decode Done in GUI");
                 this.decodeLabel.Text = myCPU.instToString(args.CurrentIR);
             };
 
@@ -75,7 +71,6 @@ namespace WindowsFormsApplication2
         {
             MethodInvoker method = delegate
             {
-                Console.WriteLine("Execute Done in GUI");
                 this.executeLabel.Text = myCPU.instToString(args.CurrentIR);
             };
 
@@ -93,7 +88,6 @@ namespace WindowsFormsApplication2
         {
             MethodInvoker method = delegate
             {
-                Console.WriteLine("Store Done in GUI");
                 this.storeLabel.Text = myCPU.instToString(args.CurrentIR);
             };
 
@@ -152,6 +146,13 @@ namespace WindowsFormsApplication2
                     }
                 }
             }
+            myCPU.branchPredictionTable = new CPU.branchPredictionStruct[100];
+            for (int i = 0; i < myCPU.branchPredictionTable.Length; i++)
+            {
+                CPU.branchPredictionStruct initial = new CPU.branchPredictionStruct();
+                initial.branchPC = -1;
+                myCPU.branchPredictionTable[i] = initial;
+            }
             setInitialCPUValuesToView();
         }
         private void runToEndButton_Click(object sender, EventArgs e)
@@ -201,6 +202,7 @@ namespace WindowsFormsApplication2
             this.decodeLabel.Text = "- - -";
             this.executeLabel.Text = "- - -";
             this.storeLabel.Text = "- - -";
+            this.noopLabel.Text = "0";
         }
 
         public void setCPUValuesToView()
@@ -221,6 +223,7 @@ namespace WindowsFormsApplication2
             this.hitMissLabel.Text = this.myMem.hitMiss;
             this.hitCountLabel.Text = this.myMem.hitCount.ToString();
             this.missCountLabel.Text = this.myMem.missCount.ToString();
+            this.noopLabel.Text = this.myCPU.no_op_count.ToString();
         }
 
         private void applyCacheButton_Click(object sender, EventArgs e)

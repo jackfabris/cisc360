@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Collections;
 
 namespace GeminiCore
@@ -56,14 +55,13 @@ namespace GeminiCore
         public delegate void StoreDone(object sender, OperationEventArgs args);
         public event StoreDone OnStoreDone;
 
-        public delegate void ProgramDone(object sender, ProgramEventArgs args);
-        public event ProgramDone OnProgramDone;
-
         bool areWeDone = false;
         bool branchTaken = false;
         bool loadInst = false;
         bool mulDivInst = false;
         int mulDivCount = 0;
+        public int no_op_count = 0;
+        bool bypassing = false;
 
         public struct fetchStruct
         {
@@ -101,13 +99,13 @@ namespace GeminiCore
         {
             public int branchPC;
             public int targetPC;
-            public int timesTaken = 0;
-            public int timesNotTaken = 0;
-            public bool taken = false;
-            public bool predictTaken = false;
+            public int timesTaken;
+            public int timesNotTaken;
+            public bool taken;
+            public bool predictTaken;
         }
 
-        public List<branchPredictionStruct> branchPredictionTable = new List<branchPredictionStruct>();
+        public branchPredictionStruct[] branchPredictionTable;
         public bool predictionHit;
 
         public int GUIfetch;
@@ -294,7 +292,6 @@ namespace GeminiCore
                                     "Runtime Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
-
                         switch (execute.inst)
                         {
                             case 1:
@@ -407,42 +404,44 @@ namespace GeminiCore
                                 branchTaken = true;
                                 break;
                             case 12: // be
-                                branchPredictionStruct b = branchPredictionTable[execute.PC];
-                                if (b.Equals(null))
+                                branchPredictionStruct be = branchPredictionTable[execute.PC];
+                                if (be.branchPC < 0)
                                 {
-                                    b = new branchPredictionStruct();
-                                    b.branchPC = execute.PC;
-                                    b.targetPC = execute.operand;
+                                    be.branchPC = execute.PC;
+                                    be.targetPC = execute.operand;
+                                    be.taken = false;
+                                    be.predictTaken = false;
+                                    be.timesNotTaken = 0;
+                                    be.timesTaken = 0;
                                 }
-                                if (b.timesTaken >= 2)
+                                if (be.timesTaken >= 2)
                                 {
-                                    b.predictTaken = true;
+                                    be.predictTaken = true;
                                 }
-                                else if (b.timesNotTaken >= 2)
+                                else if (be.timesNotTaken >= 2)
                                 {
-                                    b.predictTaken = false;
+                                    be.predictTaken = false;
                                 }
                                 if (CC == 0)
                                 {
-                                    if (b.predictTaken)
+                                    if (be.predictTaken)
                                     {
                                         predictionHit = true;
-                                        PC = b.targetPC;
                                     }
                                     else
                                     {
                                         predictionHit = false;
                                     }
-                                    b.taken = true;
-                                    b.timesTaken++;
-                                    b.timesNotTaken = 0;
-                                    branchPredictionTable[execute.PC] = b;
-                                    //branchTaken = true;
+                                    PC = be.targetPC;
+                                    be.taken = true;
+                                    branchTaken = true;
+                                    be.timesTaken++;
+                                    be.timesNotTaken = 0;
+                                    branchPredictionTable[execute.PC] = be;
                                 }
                                 else
                                 {
-
-                                    if (b.predictTaken)
+                                    if (be.predictTaken)
                                     {
                                         predictionHit = false;
                                     }
@@ -450,32 +449,117 @@ namespace GeminiCore
                                     {
                                         predictionHit = true;
                                     }
-                                    b.taken = false;
-                                    b.timesTaken = 0;
-                                    b.timesNotTaken++;
-                                    branchPredictionTable[execute.PC] = b;
+                                    be.taken = false;
+                                    branchTaken = false;
+                                    be.timesTaken = 0;
+                                    be.timesNotTaken++;
+                                    branchPredictionTable[execute.PC] = be;
                                 }
                                 break;
                             case 13: // bl
+                                branchPredictionStruct bl = branchPredictionTable[execute.PC];
+                                if (bl.branchPC < 0)
+                                {
+                                    bl.branchPC = execute.PC;
+                                    bl.targetPC = execute.operand;
+                                    bl.taken = false;
+                                    bl.predictTaken = false;
+                                    bl.timesNotTaken = 0;
+                                    bl.timesTaken = 0;
+                                }
+                                if (bl.timesTaken >= 2)
+                                {
+                                    bl.predictTaken = true;
+                                }
+                                else if (bl.timesNotTaken >= 2)
+                                {
+                                    bl.predictTaken = false;
+                                }
                                 if (CC == -1)
                                 {
-                                    PC = execute.operand;
+                                    if (bl.predictTaken)
+                                    {
+                                        predictionHit = true;
+                                    }
+                                    else
+                                    {
+                                        predictionHit = false;
+                                    }
+                                    PC = bl.targetPC;
+                                    bl.taken = true;
                                     branchTaken = true;
+                                    bl.timesTaken++;
+                                    bl.timesNotTaken = 0;
+                                    branchPredictionTable[execute.PC] = bl;
                                 }
                                 else
                                 {
-                                    //do nothing
+                                    if (bl.predictTaken)
+                                    {
+                                        predictionHit = false;
+                                    }
+                                    else
+                                    {
+                                        predictionHit = true;
+                                    }
+                                    bl.taken = false;
+                                    branchTaken = false;
+                                    bl.timesTaken = 0;
+                                    bl.timesNotTaken++;
+                                    branchPredictionTable[execute.PC] = bl;
                                 }
                                 break;
                             case 14: // bg
+                                branchPredictionStruct bg = branchPredictionTable[execute.PC];
+                                if (bg.branchPC < 0)
+                                {
+                                    bg.branchPC = execute.PC;
+                                    bg.targetPC = execute.operand;
+                                    bg.taken = false;
+                                    bg.predictTaken = false;
+                                    bg.timesNotTaken = 0;
+                                    bg.timesTaken = 0;
+                                }
+                                if (bg.timesTaken >= 2)
+                                {
+                                    bg.predictTaken = true;
+                                }
+                                else if (bg.timesNotTaken >= 2)
+                                {
+                                    bg.predictTaken = false;
+                                }
                                 if (CC == 1)
                                 {
-                                    PC = execute.operand;
+                                    if (bg.predictTaken)
+                                    {
+                                        predictionHit = true;
+                                    }
+                                    else
+                                    {
+                                        predictionHit = false;
+                                    }
+                                    PC = bg.targetPC;
+                                    bg.taken = true;
                                     branchTaken = true;
+                                    bg.timesTaken++;
+                                    bg.timesNotTaken = 0;
+                                    branchPredictionTable[execute.PC] = bg;
                                 }
                                 else
                                 {
-                                    //do nothing
+                                    if (bg.predictTaken)
+                                    {
+                                        predictionHit = false;
+                                    }
+                                    else
+                                    {
+                                        predictionHit = true;
+                                    }
+                                    bg.taken = false;
+                                    branchTaken = false;
+                                    bg.timesTaken = 0;
+                                    bg.timesNotTaken++;
+                                    branchPredictionTable[execute.PC] = bg;
                                 }
                                 break;
                             case 15:
@@ -517,6 +601,7 @@ namespace GeminiCore
                 {
                     if (store.PC > -1 && store.PC < mem.Instructions.Count)
                     {
+                        PC = store.PC;
                         switch (store.inst)
                         {
                             case 1:
@@ -686,21 +771,9 @@ namespace GeminiCore
             }
         }
 
-        //else if (store.PC == mem.Instructions.Count)
-        //{
-        //    Console.WriteLine("about to dispose");
-        //    Dispose();
-        //    Console.WriteLine("disposed");
-        //    if (OnProgramDone != null)
-        //    {
-        //        OnProgramDone(this, new ProgramEventArgs());
-        //        Console.WriteLine("on program done called");
-        //    }
-        //}
-
         public void executeInstruction()
         {
-            Console.WriteLine("execute called");
+            Console.WriteLine("NOOPs: " + no_op_count);
             fetchDone = false;
             decodeDone = false;
             executeDone = false;
@@ -711,12 +784,14 @@ namespace GeminiCore
             //executeRuns = false;
             //storeRuns = false;
 
-            if (loadInst)
+            if (loadInst && !bypassing)
             {
+                no_op_count++;
                 loadInst = false;
             }
             else if (mulDivInst)
             {
+                no_op_count++;
                 if (mulDivCount == 4)
                 {
                     mulDivCount = 0;
@@ -728,10 +803,10 @@ namespace GeminiCore
                 }
 
             }
-            else if (!predictionHit)
+            else if (!predictionHit && branchTaken)
             {
+                no_op_count++;
                 fetch.PC = PC;
-                Console.WriteLine("fetch PC: " + fetch.PC);
                 decode.PC = -1;
                 execute.PC = -1;
 
@@ -748,14 +823,12 @@ namespace GeminiCore
             else
             {
                 //check if branch was taken, if so transfer btwn threads
-
+               
 
                 fetchEvent.Set();
                 decodeEvent.Set();
                 executeEvent.Set();
                 storeEvent.Set();
-
-                Console.WriteLine("Set");
 
                 allThreadsDone.WaitOne();
 
@@ -777,44 +850,24 @@ namespace GeminiCore
                 store.tempACC = execute.ACC;
                 store.PC = execute.PC;
             }
-
-            Console.WriteLine("done");
-            Console.WriteLine("ACC: " + ACC);
-            Console.WriteLine("PC: " + PC);
-
+            if (fetch.PC >= mem.Instructions.Count)
+            {
+                fetchRuns = false;
+            }
+            if (decode.PC >= mem.Instructions.Count)
+            {
+                decodeRuns = false;
+            }
+            if (execute.PC >= mem.Instructions.Count)
+            {
+                executeRuns = false;
+            }
+            if (store.PC >= mem.Instructions.Count)
+            {
+                storeRuns = false;
+                Dispose();
+            }
         }
-
-        //if (loadInst)
-        //{
-        //    // wait one cycle on load
-        //    Console.WriteLine("load wait");
-        //    loadInst = false;
-        //}
-        //else if (branchTaken)
-        //{
-        //    fetch.PC = PC;
-        //    Console.WriteLine("fetch PC: " + fetch.PC);
-        //    decode.PC = -1;
-        //    execute.PC = -1;
-
-        //    decode.IR = 0;
-
-        //    store.inst = execute.inst;
-        //    store.imm = execute.imm;
-        //    store.operand = execute.operand;
-        //    store.tempACC = execute.ACC;
-        //    store.PC = execute.PC;
-
-        //    branchTaken = false;
-        //    branchTakenBefore = true;
-        //}
-        //else
-        //{
-        //    if (!branchTakenBefore)
-        //    {
-        //    }
-        //    branchTakenBefore = false;
-        //}
 
         public void resetCPU()
         {
@@ -1031,9 +1084,6 @@ namespace GeminiCore
             {
                 executeInstruction();
             }
-            Console.WriteLine("Cache Size: " + mem.cacheSize);
-            Console.WriteLine("Cache Type: " + mem.cacheType);
-            Console.WriteLine("Block Size: " + mem.blockSize);
         }
 
         public string firstInstToString()

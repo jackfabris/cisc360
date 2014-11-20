@@ -84,6 +84,8 @@
             this.executeLabel = new System.Windows.Forms.Label();
             this.decodeLabel = new System.Windows.Forms.Label();
             this.fetchLabel = new System.Windows.Forms.Label();
+            this.label27 = new System.Windows.Forms.Label();
+            this.noopLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -648,11 +650,31 @@
             this.fetchLabel.TabIndex = 55;
             this.fetchLabel.Text = "- - -";
             // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(217, 446);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(46, 13);
+            this.label27.TabIndex = 56;
+            this.label27.Text = "NOOPs:";
+            // 
+            // noopLabel
+            // 
+            this.noopLabel.AutoSize = true;
+            this.noopLabel.Location = new System.Drawing.Point(270, 446);
+            this.noopLabel.Name = "noopLabel";
+            this.noopLabel.Size = new System.Drawing.Size(13, 13);
+            this.noopLabel.TabIndex = 57;
+            this.noopLabel.Text = "0";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(418, 483);
+            this.Controls.Add(this.noopLabel);
+            this.Controls.Add(this.label27);
             this.Controls.Add(this.fetchLabel);
             this.Controls.Add(this.decodeLabel);
             this.Controls.Add(this.executeLabel);
@@ -774,6 +796,8 @@
         private System.Windows.Forms.Label executeLabel;
         private System.Windows.Forms.Label decodeLabel;
         private System.Windows.Forms.Label fetchLabel;
+        private System.Windows.Forms.Label label27;
+        private System.Windows.Forms.Label noopLabel;
     }
 }
 
